@@ -150,11 +150,137 @@ GET users/_msearch
 {"query" : {"match_all" : {}}}
 ```
 
+### 查看不同的Analyzer效果, 官方示例
+#### Standard Analyzer
+
+```
+post _analyze
+{
+  "analyzer": "standard",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+PUT standard-demo
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_english_analyzer": {
+          "type": "standard",
+          "max_token_length": 5,
+          "stopwords": "_english_"
+        }
+      }
+    }
+  }
+}
 
 
+POST standard-demo/_analyze
+{
+  "analyzer": "my_english_analyzer",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
 
+# 
+```
 
+#### Simple Analyzer
 
+```
+POST _analyze
+{
+  "analyzer": "simple",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+```
 
+#### Stop Analyzer
 
+```
+POST _analyze
+{
+  "analyzer": "stop",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
 
+PUT stop-demo
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_stop_analyzer": {
+          "type": "stop",
+          "stopwords": ["the", "over"]
+        }
+      }
+    }
+  }
+}
+
+POST stop-demo/_analyze
+{
+  "analyzer": "my_stop_analyzer",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+```
+
+#### Keyword Analyzer
+
+```
+POST _analyze
+{
+  "analyzer": "keyword",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+```
+
+#### Pattern Analyzer
+```
+POST _analyze
+{
+  "analyzer": "pattern",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+
+PUT pattern-demo
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_email_analyzer": {
+          "type":      "pattern",
+          "pattern":   "\\W|_", 
+          "lowercase": true
+        }
+      }
+    }
+  }
+}
+
+POST pattern-demo/_analyze
+{
+  "analyzer": "my_email_analyzer",
+  "text": "John_Smith@foo-bar.com"
+}
+```
+
+#### Language Analyzer
+
+```
+POST _analyze
+{
+  "analyzer": "english",
+  "text": "The 2 QUICK Brown-Foxes jumped over the lazy dog's bone."
+}
+```
+
+#### ICU Analyzer
+
+```
+POST _analyze
+{
+  "analyzer": "icu_analyzer",
+  "text": "他说的确实在理"
+}
+```
