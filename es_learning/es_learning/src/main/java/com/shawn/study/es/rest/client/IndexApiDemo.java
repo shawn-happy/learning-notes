@@ -49,15 +49,14 @@ public class IndexApiDemo {
         {
           fieldTypeMap.forEach(
               (key, value) -> {
-                try {
-                  xContentBuilder.startObject(key);
-                  {
-                    xContentBuilder.field("type", value);
-                  }
-                  xContentBuilder.endObject();
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
+                ThrowableAction.execute(
+                    () -> {
+                      xContentBuilder.startObject(key);
+                      {
+                        xContentBuilder.field("type", value);
+                      }
+                      xContentBuilder.endObject();
+                    });
               });
         }
         xContentBuilder.endObject();
@@ -70,13 +69,7 @@ public class IndexApiDemo {
   }
 
   public void close(RestHighLevelClient client) {
-    if (client != null) {
-      try {
-        client.close();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
+    ThrowableAction.execute(client::close);
   }
 
   public void close() {
@@ -85,92 +78,78 @@ public class IndexApiDemo {
 
   public CreateIndexResponse createIndex(
       String index, Settings settings, XContentBuilder xContentBuilder) {
+    ThrowableFunction<CreateIndexRequest, CreateIndexResponse> function =
+        createIndexRequest -> client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
     CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
     createIndexRequest.settings(settings);
     createIndexRequest.mapping(xContentBuilder);
-    try {
-      return client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(createIndexRequest, function);
   }
 
   public GetIndexResponse getIndex(String index) {
+    ThrowableFunction<GetIndexRequest, GetIndexResponse> function =
+        getIndexRequest -> client.indices().get(getIndexRequest, RequestOptions.DEFAULT);
     GetIndexRequest getIndexRequest = new GetIndexRequest(index);
-    try {
-      return client.indices().get(getIndexRequest, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(getIndexRequest, function);
   }
 
   public GetMappingsResponse getMappings(String index) {
+    ThrowableFunction<GetMappingsRequest, GetMappingsResponse> function =
+        getMappingsRequest ->
+            client.indices().getMapping(getMappingsRequest, RequestOptions.DEFAULT);
     GetMappingsRequest getMappingsRequest = new GetMappingsRequest();
     getMappingsRequest.indices(index).includeDefaults();
-    try {
-      return client.indices().getMapping(getMappingsRequest, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(getMappingsRequest, function);
   }
 
   public GetFieldMappingsResponse getFieldMappings(String index, String field) {
+    ThrowableFunction<GetFieldMappingsRequest, GetFieldMappingsResponse> function =
+        getFieldMappingsRequest ->
+            client.indices().getFieldMapping(getFieldMappingsRequest, RequestOptions.DEFAULT);
     GetFieldMappingsRequest request = new GetFieldMappingsRequest();
     request.indices(index);
     request.fields(field);
-    try {
-      return client.indices().getFieldMapping(request, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(request, function);
   }
 
   public AcknowledgedResponse updateMapping(String index, XContentBuilder builder) {
+    ThrowableFunction<PutMappingRequest, AcknowledgedResponse> function =
+        putMappingRequest -> client.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT);
     PutMappingRequest request = new PutMappingRequest(index);
     request.source(builder);
-    try {
-      return client.indices().putMapping(request, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(request, function);
   }
 
   public GetSettingsResponse getSettings(String index) {
+    ThrowableFunction<GetSettingsRequest, GetSettingsResponse> function =
+        getSettingsRequest ->
+            client.indices().getSettings(getSettingsRequest, RequestOptions.DEFAULT);
     GetSettingsRequest request = new GetSettingsRequest();
     request.indices(index);
-    try {
-      return client.indices().getSettings(request, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(request, function);
   }
 
   public AcknowledgedResponse updateSettings(String index, Map<String, Object> settings) {
+    ThrowableFunction<UpdateSettingsRequest, AcknowledgedResponse> function =
+        updateSettingsRequest ->
+            client.indices().putSettings(updateSettingsRequest, RequestOptions.DEFAULT);
     UpdateSettingsRequest request = new UpdateSettingsRequest();
     request.indices(index).settings(settings);
-    try {
-      return client.indices().putSettings(request, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(request, function);
   }
 
   public AcknowledgedResponse deleteIndex(String index) {
+    ThrowableFunction<DeleteIndexRequest, AcknowledgedResponse> function =
+        deleteIndexRequest -> client.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
     DeleteIndexRequest request = new DeleteIndexRequest();
     request.indices(index);
-    try {
-      return client.indices().delete(request, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(request, function);
   }
 
   public boolean exists(String index) {
+    ThrowableFunction<GetIndexRequest, Boolean> function =
+        getIndexRequest -> client.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
     GetIndexRequest request = new GetIndexRequest(index);
-    try {
-      return client.indices().exists(request, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return ThrowableFunction.execute(request, function);
   }
 }

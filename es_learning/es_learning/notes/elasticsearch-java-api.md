@@ -292,7 +292,76 @@ public void test_index_exists() {
 
 #### Document API
 
+##### Create Document
+
+```java
+public IndexResponse insert(String index, Map<String, Object> source) {
+  ThrowableFunction<IndexRequest, IndexResponse> function =
+      (indexRequest) -> client.index(indexRequest, RequestOptions.DEFAULT);
+  IndexRequest indexRequest =
+      new IndexRequest()
+          .index(index)
+          .id(String.valueOf(idGenerator.next()))
+          .source(source, XContentType.JSON)
+          .opType(OpType.INDEX);
+  return ThrowableFunction.execute(indexRequest, function);
+}
+@Test
+public void test_create_document() {
+    Map<String, Object> source = new HashMap<>();
+    source.put("avaliable", true);
+    source.put("date", new Date());
+    source.put("price", new Random().nextLong());
+    source.put("productID", UUID.randomUUID().toString());
+    IndexResponse response = demo.insert(INDEX, source);
+    Assert.assertEquals(1L,  response.getVersion());
+}
+```
+
+注意：
+
+```java
+enum OpType {
+    /**
+     * Index the source. If there an existing document with the id, it will
+     * be replaced.(default value)
+     */
+    INDEX(0),
+    /**
+     * Creates the resource. Simply adds it to the index, if there is an existing
+     * document with the id, then it won't be removed.
+     */
+    CREATE(1),
+    /** Updates a document */
+    UPDATE(2),
+    /** Deletes a document */
+    DELETE(3);
+}
+```
+
+##### Get Document
+
+##### Get Source
+
+##### Update Document
+
+##### Exists Document
+
+##### Delete Document
+
+##### Bulk
+
+##### Multi-Get
+
 #### Search API
+
+##### Search
+
+##### Multi-Search
+
+##### Search Template
+
+##### Multi-Search Template
 
 ### Spring
 
