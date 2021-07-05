@@ -12,5 +12,5 @@
 
 ## [elasticsearch 分布式原理](./notes/elasticsearch-distribute.md)
 
-## [elasticsearch 倒排索引](./notes/elasticsearch-inverted-index.md)
+## [elasticsearch 倒排索引](./notes/elasticsearch-index.md)
 

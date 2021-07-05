@@ -924,6 +924,9 @@ POST _analyze
 }
 ```
 
+### 中文分词器
+
 ### 参考资料
 
 * https://www.elastic.co/guide/en/elasticsearch/reference/7.9/analysis-analyzers.html
+
