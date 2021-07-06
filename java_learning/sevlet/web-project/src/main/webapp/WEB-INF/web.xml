@@ -24,6 +24,10 @@
   </filter-mapping>
 
   <servlet>
+    <init-param>
+      <param-name>scanPackage</param-name>
+      <param-value>com.shawn.study.java.web.controller</param-value>
+    </init-param>
     <servlet-name>dispatcherServlet</servlet-name>
     <servlet-class>com.shawn.study.java.web.servlet.DispatcherServlet</servlet-class>
     <load-on-startup>1</load-on-startup>

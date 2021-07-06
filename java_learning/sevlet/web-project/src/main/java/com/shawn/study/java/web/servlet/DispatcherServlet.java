@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,30 +52,32 @@ public class DispatcherServlet extends HttpServlet {
   private final Map<String, Object> controllerMappings = new ConcurrentHashMap<>();
 
   private final ViewResolver viewResolver = new JspViewResolver("/", ".jsp");
+  private int bytesRead;
 
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+      throws ServletException {
     doDispatcher(request, response);
   }
 
   @Override
   public void init() throws ServletException {
+    ServletConfig servletConfig = getServletConfig();
     // 扫包
-    String scanPackage = "com.shawn.study.java.web.controller";
+    String scanPackage = servletConfig.getInitParameter("scanPackage");
     doScanner(scanPackage);
     // 处理requestMapping
     initHandlerMethod();
   }
 
   private void doDispatcher(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+      throws ServletException {
     String url = request.getRequestURI();
     String contextPath = request.getContextPath();
     url = url.replace(contextPath, "").replaceAll("/+", "/").replaceAll("//", "/");
     HandlerMethodInfo methodInfo = handlerMethodMappings.get(url);
     Object controller = controllerMappings.get(url);
-    PrintWriter writer = response.getWriter();
+
     if (Objects.isNull(methodInfo) || Objects.isNull(controller)) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
@@ -109,45 +112,30 @@ public class DispatcherServlet extends HttpServlet {
         continue;
       }
       if (parameter.isAnnotationPresent(RequestBody.class)) {
-        BufferedReader bufferedReader = null;
         StringBuilder stringBuilder = new StringBuilder();
-        try {
-          InputStream inputStream = request.getInputStream();
-          if (inputStream != null) {
-            bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            char[] charBuffer = new char[128];
-            int bytesRead = -1;
-            while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-              stringBuilder.append(charBuffer, 0, bytesRead);
-            }
-          } else {
-            stringBuilder.append("");
+        try (InputStream inputStream = request.getInputStream();
+            BufferedReader bufferedReader =
+                new BufferedReader(new InputStreamReader(inputStream)); ) {
+          char[] charBuffer = new char[128];
+          int bytesRead;
+          while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+            stringBuilder.append(charBuffer, 0, bytesRead);
           }
-        } catch (IOException ex) {
-          throw ex;
-        } finally {
-          if (bufferedReader != null) {
-            try {
-              bufferedReader.close();
-            } catch (IOException ex) {
-              throw ex;
-            }
-          }
+          Class<?> type = parameter.getType();
+          params[i] = JsonUtil.readValue(stringBuilder.toString(), type);
+        } catch (IOException e) {
+          throw new ServletException(e);
         }
-        Class<?> type = parameter.getType();
-        params[i] = JsonUtil.readValue(stringBuilder.toString(), type);
-
       } else if (parameter.getAnnotations().length == 0) {
         params[i] = methodParameter.get(parameter.getName());
       }
     }
 
     // 利用反射机制来调用
-    try {
-
+    try (PrintWriter writer = response.getWriter()) {
       Object result = method.invoke(controller, params);
       if (Objects.isNull(result)) {
-        log("result is null");
+        log("no result");
       } else {
         // 如果标记为forward，则执行forward请求
         if (!method.isAnnotationPresent(ResponseBody.class)) {
@@ -155,17 +143,12 @@ public class DispatcherServlet extends HttpServlet {
               .getRequestDispatcher(viewResolver.resolve(result.toString()))
               .forward(request, response);
         } else {
-          writer = response.getWriter();
           writer.write(
               JsonUtil.toJson(result, (e) -> new SerializationException("json serialize failed")));
         }
       }
     } catch (Exception e) {
       throw new ServletException(e);
-    } finally {
-      if (writer != null) {
-        writer.close();
-      }
     }
   }
 
@@ -201,7 +184,7 @@ public class DispatcherServlet extends HttpServlet {
         beanMappings.put(beanName, instance);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
