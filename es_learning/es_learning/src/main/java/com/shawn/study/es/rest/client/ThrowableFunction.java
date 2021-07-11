@@ -24,7 +24,7 @@ public interface ThrowableFunction<T, R> {
     try {
       result = apply(t);
     } catch (Throwable e) {
-      throw new RuntimeException(e.getCause());
+      throw new RuntimeException(e);
     }
     return result;
   }
@@ -32,15 +32,13 @@ public interface ThrowableFunction<T, R> {
   /**
    * Executes {@link ThrowableFunction}
    *
-   * @param t        the function argument
+   * @param t the function argument
    * @param function {@link ThrowableFunction}
-   * @param <T>      the source type
-   * @param <R>      the return type
+   * @param <T> the source type
+   * @param <R> the return type
    * @return the result after execution
    */
   static <T, R> R execute(T t, ThrowableFunction<T, R> function) {
     return function.execute(t);
   }
 }
-
-
