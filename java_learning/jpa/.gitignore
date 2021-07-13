@@ -1,0 +1,10 @@
+/.idea/
+/target/
+*.class
+*.classpath
+*.log
+*.yarn.lock
+*.jar
+*.war
+*.zip
+*.tar.gz

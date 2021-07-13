@@ -10,6 +10,7 @@
   <packaging>war</packaging>
 
   <properties>
+    <mysql.driver.version>8.0.18</mysql.driver.version>
     <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <jstl.version>1.2</jstl.version>
     <commons-lang.version>2.6</commons-lang.version>
@@ -25,6 +26,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.driver.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
