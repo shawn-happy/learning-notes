@@ -42,22 +42,48 @@ public class ElasticsearchTemplateService {
     return indexOperations.create(settings, mappings);
   }
 
+  /**
+   * check if this index exists
+   *
+   * @return boolean
+   */
   public boolean existsIndex() {
     return indexOperations.exists();
   }
 
+  /**
+   * get elasticsearch index setting
+   *
+   * @return {@link Settings}
+   */
   public Settings getSettings() {
     return indexOperations.getSettings();
   }
 
+  /**
+   * get elasticsearch index mapping
+   *
+   * @return Map
+   */
   public Map<String, Object> getMappings() {
     return indexOperations.getMapping();
   }
 
+  /**
+   * update index mapping
+   *
+   * @param mapping index mappings
+   * @return boolean
+   */
   public boolean updateIndex(Document mapping) {
     return indexOperations.putMapping(mapping);
   }
 
+  /**
+   * delete index
+   *
+   * @return boolean
+   */
   public boolean deleteIndex() {
     return indexOperations.delete();
   }
