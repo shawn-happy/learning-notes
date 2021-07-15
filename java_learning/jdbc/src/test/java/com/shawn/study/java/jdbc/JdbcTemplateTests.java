@@ -11,7 +11,7 @@ public class JdbcTemplateTests {
   private JdbcTemplate jdbcTemplate;
 
   private static final String URL =
-      "jdbc:mysql://127.0.0.1:3306/practice?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=GMT%2B8";
+      "jdbc:mysql://127.0.0.1:3306/practice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8";
   private static final String USERNAME = "root";
   private static final String PASSWORD = "123456";
   private static final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
