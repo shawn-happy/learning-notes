@@ -2,6 +2,7 @@ package com.shawn.study.java.web.context;
 
 import com.shawn.study.java.web.function.ThrowableAction;
 import com.shawn.study.java.web.function.ThrowableFunction;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +13,8 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -42,16 +45,12 @@ public class JndiApplicationContext implements ApplicationContext {
 
   private Map<String, Object> componentCache = new ConcurrentHashMap<>();
 
+  /** @PreDestroy 方法缓存，Key 为标注方法，Value 为方法所属对象 */
+  private Map<Method, Object> preDestroyMethodCache = new ConcurrentHashMap<>();
+
   public void init(ServletContext servletContext) {
     JndiApplicationContext.servletContext = servletContext;
-    this.classLoader = servletContext.getClassLoader();
     init();
-    List<String> names = ThrowableFunction.execute("/", this::listComponentNames);
-    names.forEach(name -> componentCache.put(name, createComponent(name)));
-    componentCache
-        .values()
-        .forEach(component -> populateComponent(component, component.getClass()));
-
     servletContext.setAttribute(CONTEXT_NAME, this);
   }
 
@@ -64,18 +63,11 @@ public class JndiApplicationContext implements ApplicationContext {
 
   @Override
   public void init() {
-    if (envContext != null) {
-      return;
-    }
-    Context context = null;
-    try {
-      context = new InitialContext();
-      envContext = (Context) context.lookup(COMPONENT_ENV_CONTEXT_NAME);
-    } catch (NamingException e) {
-      THROWABLE_CONSUMER.accept(e);
-    } finally {
-      close(context);
-    }
+    initClassLoader();
+    initJndiContext();
+    instantiateComponents();
+    initComponents();
+    registerShutdownHook();
   }
 
   @Override
@@ -97,13 +89,48 @@ public class JndiApplicationContext implements ApplicationContext {
     close(envContext);
   }
 
+  private void initClassLoader() {
+    this.classLoader = servletContext.getClassLoader();
+  }
+
+  private void initJndiContext() {
+    if (envContext != null) {
+      return;
+    }
+    Context context = null;
+    try {
+      context = new InitialContext();
+      envContext = (Context) context.lookup(COMPONENT_ENV_CONTEXT_NAME);
+    } catch (NamingException e) {
+      THROWABLE_CONSUMER.accept(e);
+    } finally {
+      close(context);
+    }
+  }
+
   private static void close(Context context) {
     if (context != null) {
       ThrowableAction.execute(context::close);
     }
   }
 
-  private void populateComponent(Object component, Class<?> componentClass) {
+  private void instantiateComponents() {
+    List<String> names = ThrowableFunction.execute("/", this::listComponentNames);
+    names.forEach(name -> componentCache.put(name, createComponent(name)));
+  }
+
+  private void initComponents() {
+    componentCache.values().forEach(this::initComponent);
+  }
+
+  private void initComponent(Object component) {
+    Class<?> componentClass = component.getClass();
+    injectComponent(component, componentClass);
+    processPostConstruct(component, componentClass);
+    processPreDestroyMethod(component, componentClass);
+  }
+
+  private void injectComponent(Object component, Class<?> componentClass) {
     Stream.of(componentClass.getDeclaredFields())
         .filter(
             field ->
@@ -113,7 +140,7 @@ public class JndiApplicationContext implements ApplicationContext {
             field -> {
               Resource resource = field.getAnnotation(Resource.class);
               String name = resource.name();
-              Object injectObject = null;
+              Object injectObject;
               if (componentCache != null && componentCache.containsKey(name)) {
                 injectObject = componentCache.get(name);
               } else {
@@ -126,6 +153,37 @@ public class JndiApplicationContext implements ApplicationContext {
                 throw new RuntimeException(e);
               }
             });
+  }
+
+  private void processPostConstruct(Object component, Class<?> componentClass) {
+    Stream.of(componentClass.getDeclaredMethods())
+        .filter(
+            method ->
+                !Modifier.isStatic(method.getModifiers())
+                    && method.getParameterCount() == 0
+                    && method.isAnnotationPresent(PostConstruct.class))
+        .forEach(method -> ThrowableAction.execute(() -> method.invoke(component)));
+  }
+
+  private void processPreDestroyMethod(Object component, Class<?> componentClass) {
+    Stream.of(componentClass.getDeclaredMethods())
+        .filter(
+            method ->
+                !Modifier.isStatic(method.getModifiers())
+                    && method.getParameterCount() == 0
+                    && method.isAnnotationPresent(PreDestroy.class))
+        .forEach(method -> preDestroyMethodCache.put(method, component));
+  }
+
+  private void processPreDestroy() {
+    for (Method preDestroyMethod : preDestroyMethodCache.keySet()) {
+      Object component = preDestroyMethodCache.remove(preDestroyMethod);
+      ThrowableAction.execute(() -> preDestroyMethod.invoke(component));
+    }
+  }
+
+  private void registerShutdownHook() {
+    Runtime.getRuntime().addShutdownHook(new Thread(this::processPreDestroy));
   }
 
   private List<String> listComponentNames(String name) throws Exception {

@@ -12,4 +12,9 @@
   <Resource name="bean/jdbcTemplate" auth="Container"
     type="com.shawn.study.java.web.db.JdbcTemplate"
     factory="org.apache.naming.factory.BeanFactory"/>
+
+  <Resource name="bean/userDao" auth="Container"
+    type="com.shawn.study.java.web.dao.UserDaoImpl"
+    factory="org.apache.naming.factory.BeanFactory"/>
+
 </Context>

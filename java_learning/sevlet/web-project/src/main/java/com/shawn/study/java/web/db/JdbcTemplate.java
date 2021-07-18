@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
@@ -20,7 +21,7 @@ public class JdbcTemplate {
   private Connection connection;
 
   @Resource(name = "jdbc/datasource")
-  public DataSource dataSource;
+  private DataSource dataSource;
 
   @PostConstruct
   public void init() {
@@ -36,6 +37,7 @@ public class JdbcTemplate {
 
   public JdbcTemplate() {}
 
+  @PreDestroy
   public void close() {
     close(connection);
   }

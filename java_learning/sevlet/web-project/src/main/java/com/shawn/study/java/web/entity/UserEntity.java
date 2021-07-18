@@ -11,14 +11,24 @@ public class UserEntity {
   private int id;
   private String username;
   private String password;
+  private int age;
   private String address;
 
   public UserEntity() {}
 
-  public UserEntity(int id, String username, String password, String address) {
+  public UserEntity(String username, String password, int age, String address) {
     this.id = id;
     this.username = username;
     this.password = password;
+    this.age = age;
+    this.address = address;
+  }
+
+  public UserEntity(int id, String username, String password, int age, String address) {
+    this.id = id;
+    this.username = username;
+    this.password = password;
+    this.age = age;
     this.address = address;
   }
 
@@ -52,5 +62,32 @@ public class UserEntity {
 
   public void setAddress(String address) {
     this.address = address;
+  }
+
+  public int getAge() {
+    return age;
+  }
+
+  public void setAge(int age) {
+    this.age = age;
+  }
+
+  @Override
+  public String toString() {
+    return "UserEntity{"
+        + "id="
+        + id
+        + ", username='"
+        + username
+        + '\''
+        + ", password='"
+        + password
+        + '\''
+        + ", age="
+        + age
+        + ", address='"
+        + address
+        + '\''
+        + '}';
   }
 }

@@ -24,7 +24,7 @@ public interface ThrowableFunction<T, R> {
     try {
       result = apply(t);
     } catch (Throwable e) {
-      throw new RuntimeException(e.getCause());
+      throw new RuntimeException(e);
     }
     return result;
   }

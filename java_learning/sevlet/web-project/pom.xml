@@ -17,6 +17,7 @@
     <commons-collections.version>3.2.1</commons-collections.version>
     <junit.version>4.13.1</junit.version>
     <jackson.version>2.9.9</jackson.version>
+    <tomcat7.version>7.0.37</tomcat7.version>
     <junit.version>4.13.1</junit.version>
 
     <spotless.version>1.13.0</spotless.version>
@@ -70,6 +71,28 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- tomcat -->
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina-ha</artifactId>
+      <version>${tomcat7.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-dbcp</artifactId>
+      <version>${tomcat7.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jdbc</artifactId>
+      <version>${tomcat7.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
