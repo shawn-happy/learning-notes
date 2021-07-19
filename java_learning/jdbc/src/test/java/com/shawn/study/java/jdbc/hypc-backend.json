@@ -1,0 +1,596 @@
+{
+    "predictor_data_load_job":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "workspace_id": "工作空间id"
+        },
+        {
+            "predictor_id": "预估id"
+        },
+        {
+            "job_prn": "任务名称"
+        },
+        {
+            "status": "状态"
+        }
+    ],
+    "predictor_operator_config":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "config": "配置"
+        },
+        {
+            "update_time": "更新时间"
+        }
+    ],
+    "learning_cycle_deployment":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "deployment_type": "发布类型"
+        },
+        {
+            "deployment_target": "发布目标"
+        },
+        {
+            "deployment_status": "发布状态"
+        },
+        {
+            "create_timestamp": "创建时间"
+        },
+        {
+            "update_timestamp": "更新时间"
+        }
+    ],
+    "stream_status":
+    [
+        {
+            "scene_id": "场景id"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "update_time": "更新时间"
+        }
+    ],
+    "stream_field_extra_definition":
+    [
+        {
+            "data_stream_relation_id": "数据关系id"
+        },
+        {
+            "field_id": "字段id"
+        },
+        {
+            "tag_type": "标签类型"
+        },
+        {
+            "used_for_auto_featuring": "自动特征抽取"
+        }
+    ],
+    "training_solution":
+    [
+        {
+            "solution_id": "方案id"
+        },
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "performance_indicator_type": "指标类型"
+        },
+        {
+            "performance_indicator_value": "指标数值"
+        },
+        {
+            "deployed": "是否发布"
+        },
+        {
+            "start_timestamp": "创建时间"
+        },
+        {
+            "end_timestamp": "结束时间"
+        },
+        {
+            "create_timestamp": "创建时间"
+        }
+    ],
+    "scene_definition":
+    [
+        {
+            "business_name": "名称"
+        },
+        {
+            "description": "描述"
+        },
+        {
+            "application_type": "应用类型"
+        },
+        {
+            "problem_type": "问题类型"
+        },
+        {
+            "data_stream_relation_id": "数据流关系ID"
+        },
+        {
+            "user_name": "用户名"
+        },
+        {
+            "create_time": "创建时间"
+        },
+        {
+            "update_time": "更新时间"
+        }
+    ],
+    "predictor_report":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "predictor_id": "预估id"
+        },
+        {
+            "model_prn": "模型地址"
+        },
+        {
+            "data_start_time": "数据开始时间"
+        },
+        {
+            "data_end_time": "数据结束时间"
+        },
+        {
+            "start_time": "开始时间"
+        },
+        {
+            "end_time": "结束时间"
+        },
+        {
+            "prediction_score_prn": "预估得分"
+        },
+        {
+            "prediction_indicator_prn": "预估指标"
+        },
+        {
+            "prediction_bucket_prn": "预估桶"
+        },
+        {
+            "prediction_psi_prn": "预估psi报告"
+        }
+    ],
+    "learning_cycle_monitor_edge":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "src_id": "来源id"
+        },
+        {
+            "dest_id": "目标id"
+        },
+        {
+            "create_time": "创建时间"
+        }
+    ],
+    "scene":
+    [
+        {
+            "prophet_workspace_id": "工作空间id"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "slow_feedback": "慢反馈"
+        },
+        {
+            "description": "描述"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "business_type": "业务类型"
+        },
+        {
+            "task_type": "任务类型"
+        },
+        {
+            "model_group_prn": "模型组"
+        },
+        {
+            "gate_way_url": "网关地址"
+        },
+        {
+            "name_suffix": "名字后缀"
+        },
+        {
+            "scene_type": "场景类型"
+        },
+        {
+            "version": "版本"
+        }
+    ],
+    "learning_cycle":
+    [
+        {
+            "scene_id": "场景id"
+        },
+        {
+            "business_name": "名称"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "description": "描述"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "model_group_prn": "模型组"
+        },
+        {
+            "view_log_prn": "viewlog"
+        },
+        {
+            "view_log_url": "viewlog"
+        },
+        {
+            "name_suffix": "名字后缀"
+        },
+        {
+            "self_learning_evaluation_unit": "自学习评估单位"
+        },
+        {
+            "self_learning_evaluation_value": "自学习评估值"
+        },
+        {
+            "offline_self_learning_frequency_unit": "离线自学习频率单位"
+        },
+        {
+            "offline_self_learning_frequency_value": "离线自学习频率值"
+        },
+        {
+            "deep_learning_enabled": "深度学习是否开启"
+        },
+        {
+            "model_interpretable": "可说明的模型"
+        },
+        {
+            "hyper_cycle_accredited": "认证"
+        },
+        {
+            "use_potential_data_analysis": "数据分析"
+        },
+        {
+            "data_amount_type": "数据类型"
+        },
+        {
+            "data_amount_unit": "数据量单位"
+        },
+        {
+            "data_amount_value": "数据量"
+        },
+        {
+            "learning_data_amount_in_days": "学习数据量"
+        },
+        {
+            "evaluation_data_amount_in_days": "评估数据量"
+        },
+        {
+            "train_percentage": "训练百分比"
+        },
+        {
+            "eval_percentage": "评估百分比"
+        },
+        {
+            "performance_indicator_type": "指标类型"
+        },
+        {
+            "power_level": "算力等级"
+        },
+        {
+            "self_learning_auto_updatable": "自学习自动更新"
+        },
+        {
+            "use_offline_model": "离线模型"
+        },
+        {
+            "gbdt_accelerated": "gbdt认证"
+        },
+        {
+            "data_stream_relation_snapshot_id": "数据关系快照id"
+        },
+        {
+            "already_learned": "准备学习"
+        },
+        {
+            "explore_termination_condition_type": "探索停止条件类型"
+        },
+        {
+            "explore_termination_condition_value": "探索停止条件值"
+        },
+        {
+            "version": "版本"
+        },
+        {
+            "create_time": "创建时间"
+        },
+        {
+            "update_time": "更新时间"
+        },
+        {
+            "creator": "创建者"
+        },
+        {
+            "applied_training_solution_id": "方案id"
+        }
+    ],
+    "solution_model_report":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "model_id": "模型id"
+        },
+        {
+            "model_prn": "模型地址"
+        },
+        {
+            "report_prn": "模型报告"
+        },
+        {
+            "report_status": "状态"
+        },
+        {
+            "workspace_id": "工作空间id"
+        },
+        {
+            "model_task_id": "模型任务id"
+        }
+    ],
+    "stream":
+    [
+        {
+            "name": "名称"
+        },
+        {
+            "prn": "地址"
+        },
+        {
+            "url": "地址"
+        },
+        {
+            "remark": "备注"
+        },
+        {
+            "stream_type": "数据流类型"
+        }
+    ],
+    "learning_cycle_monitor_node":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "info": "信息"
+        },
+        {
+            "type": "类型"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "create_time": "创建时间"
+        },
+        {
+            "node_type": "节点类型"
+        }
+    ],
+    "scene_custom_parameter":
+    [
+        {
+            "scene_id": "场景id"
+        },
+        {
+            "content": "内容"
+        },
+        {
+            "update_timestamp": "更新时间"
+        }
+    ],
+    "scene_stream_relation":
+    [
+        {
+            "scene_id": "场景id"
+        },
+        {
+            "stream_id": "数据流id"
+        }
+    ],
+    "predictor_timestamp":
+    [
+        {
+            "predictor_id": "预估id"
+        },
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "start_timestamp": "创建时间"
+        },
+        {
+            "end_timestamp": "结束时间"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "is_clean": "是否清理"
+        },
+        {
+            "table_info_json": "表信息"
+        }
+    ],
+    "stream_creation_record":
+    [
+        {
+            "scene_id": "场景id"
+        },
+        {
+            "stream_id": "数据流id"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "error_message": "错误信息"
+        },
+        {
+            "create_time": "创建时间"
+        }
+    ],
+    "model":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "prn": "地址"
+        },
+        {
+            "performance_indicator_type": "指标类型"
+        },
+        {
+            "performance_indicator_value": "指标数值"
+        },
+        {
+            "create_time": "创建时间"
+        },
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "prn": "地址"
+        },
+        {
+            "model_type": "模型类型"
+        },
+        {
+            "indicator_type": "指标类型"
+        },
+        {
+            "indicator_value": "指标数值"
+        },
+        {
+            "evaluation_prn": "评估"
+        },
+        {
+            "create_timestamp": "创建时间"
+        }
+    ],
+    "predictor":
+    [
+        {
+            "cycle_id": "学习圈id"
+        },
+        {
+            "workspace_id": "工作空间id"
+        },
+        {
+            "dag_id": "工作流id"
+        },
+        {
+            "run_id": "任务id"
+        },
+        {
+            "status": "状态"
+        },
+        {
+            "start_time": "开始时间"
+        },
+        {
+            "end_time": "结束时间"
+        },
+        {
+            "scene_name": "场景名称"
+        },
+        {
+            "trial_name": "学习圈名称"
+        },
+        {
+            "src_prn": "来源地址"
+        }
+    ],
+    "training_solution_config":
+    [
+        {
+            "solution_id": "方案id"
+        },
+        {
+            "solution_config_json": "方案配置"
+        }
+    ],
+    "scene_custom_config":
+    [
+        {
+            "scene_id": "场景id"
+        },
+        {
+            "type": "类型"
+        },
+        {
+            "content": "内容"
+        },
+        {
+            "update_timestamp": "更新时间"
+        }
+    ],
+    "stream_field":
+    [
+        {
+            "stream_id": "数据流id"
+        },
+        {
+            "name": "名称"
+        },
+        {
+            "remark": "备注"
+        },
+        {
+            "field_type": "字段类型"
+        },
+        {
+            "tags": "标签"
+        }
+    ]
+}
