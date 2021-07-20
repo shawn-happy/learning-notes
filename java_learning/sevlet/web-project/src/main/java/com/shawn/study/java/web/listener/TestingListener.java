@@ -95,7 +95,7 @@ public class TestingListener implements ServletContextListener {
     EntityTransaction transaction = entityManager.getTransaction();
     transaction.begin();
     UserEntity userEntity = entityManager.find(UserEntity.class, 1);
-    System.out.println(userEntity);
+    LOGGER.log(Level.INFO, userEntity.toString());
     transaction.commit();
   }
 }
