@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -36,6 +38,8 @@ public class TestingListener implements ServletContextListener {
       updatePassword(userDao, id, "112233");
       delete(userDao, id);
       count(userDao);
+      EntityManager entityManager = instance.getComponent("bean/entityManager");
+      test_jpa(entityManager);
     }
   }
 
@@ -85,5 +89,13 @@ public class TestingListener implements ServletContextListener {
     int count = userDao.count();
     LOGGER.log(Level.INFO, "total number of users is " + count);
     return count;
+  }
+
+  private void test_jpa(EntityManager entityManager) {
+    EntityTransaction transaction = entityManager.getTransaction();
+    transaction.begin();
+    UserEntity userEntity = entityManager.find(UserEntity.class, 1);
+    System.out.println(userEntity);
+    transaction.commit();
   }
 }

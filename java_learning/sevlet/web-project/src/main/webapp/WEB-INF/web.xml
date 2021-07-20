@@ -69,4 +69,9 @@
     <resource-env-ref-type>com.shawn.study.java.web.dao.UserDaoImpl</resource-env-ref-type>
   </resource-env-ref>
 
+  <resource-env-ref>
+    <resource-env-ref-name>bean/entityManager</resource-env-ref-name>
+    <resource-env-ref-type>com.shawn.study.java.web.jpa.DelegatingEntityManager</resource-env-ref-type>
+  </resource-env-ref>
+
 </web-app>

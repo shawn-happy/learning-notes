@@ -17,4 +17,9 @@
     type="com.shawn.study.java.web.dao.UserDaoImpl"
     factory="org.apache.naming.factory.BeanFactory"/>
 
+  <Resource name="bean/entityManager" auth="Container"
+    type="com.shawn.study.java.web.jpa.DelegatingEntityManager"
+    persistenceUnitName="emf"
+    factory="org.apache.naming.factory.BeanFactory"/>
+
 </Context>

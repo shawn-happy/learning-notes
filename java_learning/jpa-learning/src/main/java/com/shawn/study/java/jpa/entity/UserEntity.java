@@ -1,4 +1,4 @@
-package com.shawn.study.java.web.entity;
+package com.shawn.study.java.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,12 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * user entity
- *
- * @author Shawn
- * @since 1.0.0
- */
 @Entity
 @Table(name = "user")
 public class UserEntity {
@@ -22,27 +16,12 @@ public class UserEntity {
   private int id;
 
   @Column private String username;
+
   @Column private String password;
+
   @Column private int age;
+
   @Column private String address;
-
-  public UserEntity() {}
-
-  public UserEntity(String username, String password, int age, String address) {
-    this.id = id;
-    this.username = username;
-    this.password = password;
-    this.age = age;
-    this.address = address;
-  }
-
-  public UserEntity(int id, String username, String password, int age, String address) {
-    this.id = id;
-    this.username = username;
-    this.password = password;
-    this.age = age;
-    this.address = address;
-  }
 
   public int getId() {
     return id;
@@ -68,20 +47,20 @@ public class UserEntity {
     this.password = password;
   }
 
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
-  }
-
   public int getAge() {
     return age;
   }
 
   public void setAge(int age) {
     this.age = age;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
   }
 
   @Override
