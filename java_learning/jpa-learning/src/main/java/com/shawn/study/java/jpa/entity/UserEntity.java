@@ -1,11 +1,13 @@
 package com.shawn.study.java.jpa.entity;
 
+import com.shawn.study.java.jpa.IdRange;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "user")
@@ -13,11 +15,14 @@ public class UserEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @IdRange(min = 1000, max = 10000)
   private int id;
 
   @Column private String username;
 
-  @Column private String password;
+  @Length(min = 7)
+  @Column
+  private String password;
 
   @Column private int age;
 
