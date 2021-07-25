@@ -1,10 +1,13 @@
 package com.shawn.study.java.configuration;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.stream.StreamSupport.stream;
+
+import com.shawn.study.java.configuration.converter.Converters;
+import com.shawn.study.java.configuration.source.ConfigSources;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.Set;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigValue;
 import org.eclipse.microprofile.config.spi.ConfigSource;
@@ -18,43 +21,73 @@ import org.eclipse.microprofile.config.spi.Converter;
  */
 public class DefaultConfig implements Config {
 
-  private List<ConfigSource> configSourceList = new ArrayList<>();
+  private final ConfigSources configSources;
+  private final Converters converters;
 
-  public DefaultConfig() {
-    ClassLoader classLoader = getClass().getClassLoader();
-    ServiceLoader<ConfigSource> serviceLoader = ServiceLoader.load(ConfigSource.class, classLoader);
-    serviceLoader.forEach(configSourceList::add);
-    configSourceList.sort(DefaultConfigSourceComparator.INSTANCE);
+  public DefaultConfig(ConfigSources configSources, Converters converters) {
+    this.configSources = configSources;
+    this.converters = converters;
   }
 
   @Override
-  public <T> T getValue(String s, Class<T> aClass) {
-    return (T) getPropertyValue(s);
+  public <T> T getValue(String propertyName, Class<T> propertyType) {
+    ConfigValue configValue = getConfigValue(propertyName);
+    if (configValue == null) {
+      return null;
+    }
+    String propertyValue = configValue.getValue();
+    // String 转换成目标类型
+    Converter<T> converter = doGetConverter(propertyType);
+    return converter == null ? null : converter.convert(propertyValue);
   }
 
   @Override
-  public ConfigValue getConfigValue(String s) {
-    return null;
+  public ConfigValue getConfigValue(String propertyName) {
+
+    String propertyValue = null;
+
+    ConfigSource configSource = null;
+
+    for (ConfigSource source : configSources) {
+      configSource = source;
+      propertyValue = configSource.getValue(propertyName);
+      if (propertyValue != null) {
+        break;
+      }
+    }
+    if (propertyValue == null) { // Not found
+      return null;
+    }
+
+    return newConfigValue(
+        propertyName,
+        propertyValue,
+        propertyValue,
+        configSource.getName(),
+        configSource.getOrdinal());
   }
 
   @Override
-  public <T> Optional<T> getOptionalValue(String s, Class<T> aClass) {
-    return Optional.ofNullable(getValue(s, aClass));
+  public <T> Optional<T> getOptionalValue(String propertyName, Class<T> propertyType) {
+    return Optional.ofNullable(getValue(propertyName, propertyType));
   }
 
   @Override
   public Iterable<String> getPropertyNames() {
-    return null;
+    return stream(configSources.spliterator(), false)
+        .map(ConfigSource::getPropertyNames)
+        .collect(LinkedHashSet::new, Set::addAll, Set::addAll);
   }
 
   @Override
   public Iterable<ConfigSource> getConfigSources() {
-    return Collections.unmodifiableList(configSourceList);
+    return configSources;
   }
 
   @Override
-  public <T> Optional<Converter<T>> getConverter(Class<T> aClass) {
-    return Optional.empty();
+  public <T> Optional<Converter<T>> getConverter(Class<T> propertyType) {
+    Converter<T> converter = doGetConverter(propertyType);
+    return converter == null ? Optional.empty() : Optional.of(converter);
   }
 
   @Override
@@ -62,14 +95,60 @@ public class DefaultConfig implements Config {
     return null;
   }
 
-  protected String getPropertyValue(String propertyName) {
-    String propertyValue = null;
-    for (ConfigSource configSource : configSourceList) {
-      propertyValue = configSource.getValue(propertyName);
-      if (propertyValue != null) {
-        break;
-      }
+  private <T> Converter<T> doGetConverter(Class<T> propertyType) {
+    List<Converter> converters = this.converters.getConverters(propertyType);
+    return converters.isEmpty() ? null : converters.get(0);
+  }
+
+  private ConfigValue newConfigValue(
+      String name, String value, String rawValue, String sourceName, int sourceOrdinal) {
+    return new DefaultConfigValue(name, value, rawValue, sourceName, sourceOrdinal);
+  }
+
+  private static class DefaultConfigValue implements ConfigValue {
+
+    private final String name;
+
+    private final String value;
+
+    private final String rawValue;
+
+    private final String sourceName;
+
+    private final int sourceOrdinal;
+
+    DefaultConfigValue(
+        String name, String value, String rawValue, String sourceName, int sourceOrdinal) {
+      this.name = name;
+      this.value = value;
+      this.rawValue = rawValue;
+      this.sourceName = sourceName;
+      this.sourceOrdinal = sourceOrdinal;
     }
-    return propertyValue;
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String getRawValue() {
+      return rawValue;
+    }
+
+    @Override
+    public String getSourceName() {
+      return sourceName;
+    }
+
+    @Override
+    public int getSourceOrdinal() {
+      return sourceOrdinal;
+    }
   }
 }

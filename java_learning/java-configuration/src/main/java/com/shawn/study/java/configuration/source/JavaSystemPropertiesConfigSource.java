@@ -1,13 +1,14 @@
 package com.shawn.study.java.configuration.source;
 
+import static com.shawn.study.java.configuration.constant.ConfigSourceOrdinal.JAVA_SYSTEM_PROPERTIES_ORDINAL;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.eclipse.microprofile.config.spi.ConfigSource;
 
 /** java system properties config source */
-public class JavaSystemPropertiesConfigSource implements ConfigSource {
+public class JavaSystemPropertiesConfigSource extends BaseConfigSource {
 
   private static final Map<String, String> JAVA_SYSTEM_PROPERTIES = new HashMap<>();
 
@@ -19,6 +20,10 @@ public class JavaSystemPropertiesConfigSource implements ConfigSource {
     propertyNames.forEach(name -> JAVA_SYSTEM_PROPERTIES.put(name, properties.getProperty(name)));
   }
 
+  public JavaSystemPropertiesConfigSource() {
+    super(CONFIG_SOURCE_NAME, JAVA_SYSTEM_PROPERTIES_ORDINAL.getOrdinal());
+  }
+
   @Override
   public Set<String> getPropertyNames() {
     return JAVA_SYSTEM_PROPERTIES.keySet();
@@ -27,10 +32,5 @@ public class JavaSystemPropertiesConfigSource implements ConfigSource {
   @Override
   public String getValue(String propertyName) {
     return JAVA_SYSTEM_PROPERTIES.get(propertyName);
-  }
-
-  @Override
-  public String getName() {
-    return CONFIG_SOURCE_NAME;
   }
 }
