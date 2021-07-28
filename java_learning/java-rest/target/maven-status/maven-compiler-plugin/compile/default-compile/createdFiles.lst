@@ -1,0 +1,11 @@
+com\shawn\study\java\rest\application\UserApplication.class
+com\shawn\study\java\rest\controller\UserController.class
+com\shawn\study\java\rest\service\UserService.class
+com\shawn\study\java\rest\UserRuntimeDelegate.class
+com\shawn\study\java\rest\dto\UserDTO.class
+com\shawn\study\java\rest\provider\DefaultProvider.class
+com\shawn\study\java\rest\util\URLUtil.class
+com\shawn\study\java\rest\DefaultClient.class
+com\shawn\study\java\rest\DefaultUriBuilder.class
+com\shawn\study\java\rest\servlet\DispatcherServlet.class
+com\shawn\study\java\rest\util\PathUtil.class
