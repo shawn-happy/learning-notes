@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
@@ -14,23 +14,21 @@ import javax.ws.rs.core.UriBuilder;
 public class DefaultClient implements Client {
 
   @Override
-  public void close() {
-
-  }
+  public void close() {}
 
   @Override
   public WebTarget target(String uri) {
-    return null;
+    return target(URI.create(uri));
   }
 
   @Override
   public WebTarget target(URI uri) {
-    return null;
+    return target(UriBuilder.fromUri(uri));
   }
 
   @Override
   public WebTarget target(UriBuilder uriBuilder) {
-    return null;
+    return new ImmutableWebTarget(uriBuilder);
   }
 
   @Override
@@ -39,7 +37,7 @@ public class DefaultClient implements Client {
   }
 
   @Override
-  public Builder invocation(Link link) {
+  public Invocation.Builder invocation(Link link) {
     return null;
   }
 

@@ -1,13 +1,22 @@
 package com.shawn.study.java.rest;
 
-import static com.shawn.study.java.rest.util.PathUtil.buildPath;
-import static com.shawn.study.java.rest.util.PathUtil.resolvePath;
+import static com.shawn.study.java.rest.util.PathUtils.buildPath;
+import static com.shawn.study.java.rest.util.PathUtils.resolvePath;
+import static com.shawn.study.java.rest.util.URLUtils.encodeSlash;
+import static com.shawn.study.java.rest.util.URLUtils.resolveParameters;
+import static com.shawn.study.java.rest.util.URLUtils.resolveParams;
+import static com.shawn.study.java.rest.util.URLUtils.resolveVariables;
+import static com.shawn.study.java.rest.util.URLUtils.toQueryString;
+import static com.shawn.study.java.rest.util.URLUtils.toTemplateVariables;
+import static java.util.Collections.singletonMap;
 
-import com.shawn.study.java.rest.util.URLUtil;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Stream;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
@@ -15,15 +24,23 @@ import javax.ws.rs.core.UriBuilderException;
 
 public class DefaultUriBuilder extends UriBuilder {
 
-  private int port;
-  private String host;
-  private String path;
-  private String query;
   private String scheme;
-  private String fragment;
-  private String userInfo;
-  private String uriTemplate;
+
   private String schemeSpecificPart;
+
+  private String userInfo;
+
+  private String host;
+
+  private int port;
+
+  private String path;
+
+  private String fragment;
+
+  private String uriTemplate;
+
+  private String resolvedTemplate;
 
   private MultivaluedMap<String, String> matrixParams = new MultivaluedHashMap<>();
 
@@ -36,29 +53,32 @@ public class DefaultUriBuilder extends UriBuilder {
 
   public DefaultUriBuilder() {}
 
-  private DefaultUriBuilder(DefaultUriBuilder builder) {
-    this.port = builder.port;
-    this.host = builder.host;
-    this.path = builder.path;
-    this.scheme = builder.scheme;
-    this.fragment = builder.fragment;
-    this.userInfo = builder.userInfo;
-    this.schemeSpecificPart = builder.schemeSpecificPart;
+  protected DefaultUriBuilder(DefaultUriBuilder other) {
+    this.scheme = other.scheme;
+    this.schemeSpecificPart = other.schemeSpecificPart;
+    this.userInfo = other.userInfo;
+    this.host = other.host;
+    this.port = other.port;
+    this.path = other.path;
+    this.fragment = other.fragment;
+    this.uriTemplate = other.uriTemplate;
+    this.queryParams.putAll(other.queryParams);
+    this.matrixParams.putAll(other.matrixParams);
   }
 
   @Override
   public UriBuilder uri(URI uri) {
-    scheme = uri.getScheme();
-    userInfo = uri.getRawUserInfo();
-    host = uri.getHost();
-    port = uri.getPort();
-    path = uri.getPath();
-    schemeSpecificPart = uri.getSchemeSpecificPart();
-    fragment = uri.getFragment();
-    query = uri.getRawQuery();
-    queryParams.clear();
-    queryParams.putAll(Objects.requireNonNull(URLUtil.resolveParameters(query)));
-    return null;
+    this.scheme = uri.getScheme();
+    this.schemeSpecificPart = uri.getRawSchemeSpecificPart();
+    this.userInfo = uri.getRawUserInfo();
+    this.host = uri.getHost();
+    this.port = uri.getPort();
+    this.path = uri.getRawPath();
+    this.fragment = uri.getRawFragment();
+    String query = uri.getRawQuery();
+    this.queryParams.clear();
+    this.queryParams.putAll(resolveParameters(query));
+    return this;
   }
 
   @Override
@@ -75,13 +95,13 @@ public class DefaultUriBuilder extends UriBuilder {
 
   @Override
   public UriBuilder schemeSpecificPart(String ssp) {
-    schemeSpecificPart = ssp;
+    this.schemeSpecificPart = ssp;
     return this;
   }
 
   @Override
   public UriBuilder userInfo(String ui) {
-    userInfo = ui;
+    this.userInfo = ui;
     return this;
   }
 
@@ -95,11 +115,6 @@ public class DefaultUriBuilder extends UriBuilder {
   public UriBuilder port(int port) {
     this.port = port;
     return this;
-  }
-
-  @Override
-  public UriBuilder replacePath(String path) {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -130,34 +145,15 @@ public class DefaultUriBuilder extends UriBuilder {
   }
 
   @Override
-  public UriBuilder replaceMatrix(String matrix) {
-    return null;
-  }
-
-  @Override
   public UriBuilder matrixParam(String name, Object... values) {
-
-    return null;
-  }
-
-  @Override
-  public UriBuilder replaceMatrixParam(String name, Object... values) {
-    return null;
-  }
-
-  @Override
-  public UriBuilder replaceQuery(String query) {
-    return null;
+    this.matrixParams.put(name, asList(values));
+    return this;
   }
 
   @Override
   public UriBuilder queryParam(String name, Object... values) {
-    return null;
-  }
-
-  @Override
-  public UriBuilder replaceQueryParam(String name, Object... values) {
-    return null;
+    this.queryParams.put(name, asList(values));
+    return this;
   }
 
   @Override
@@ -168,71 +164,146 @@ public class DefaultUriBuilder extends UriBuilder {
 
   @Override
   public UriBuilder resolveTemplate(String name, Object value) {
-    return null;
+    return resolveTemplate(name, value, false);
   }
 
   @Override
   public UriBuilder resolveTemplate(String name, Object value, boolean encodeSlashInPath) {
-    return null;
+    return resolveTemplates(singletonMap(name, value), encodeSlashInPath);
   }
 
   @Override
   public UriBuilder resolveTemplateFromEncoded(String name, Object value) {
-    return null;
+    return resolveTemplatesFromEncoded(singletonMap(name, value));
   }
 
   @Override
   public UriBuilder resolveTemplates(Map<String, Object> templateValues) {
-    return null;
+    return resolveTemplates(templateValues, false);
   }
 
   @Override
   public UriBuilder resolveTemplates(Map<String, Object> templateValues, boolean encodeSlashInPath)
       throws IllegalArgumentException {
-    return null;
+    return doResolveTemplates(encodeSlash(templateValues, encodeSlashInPath), false);
   }
 
   @Override
   public UriBuilder resolveTemplatesFromEncoded(Map<String, Object> templateValues) {
-    return null;
+    return doResolveTemplates(templateValues, false);
+  }
+
+  protected UriBuilder doResolveTemplates(Map<String, ?> templateValues, boolean encoded) {
+    this.scheme = resolveVariables(this.scheme, templateValues, encoded);
+    this.userInfo = resolveVariables(this.userInfo, templateValues, encoded);
+    this.host = resolveVariables(this.host, templateValues, encoded);
+    this.path = resolveVariables(this.path, templateValues, encoded);
+    this.fragment = resolveVariables(this.fragment, templateValues, encoded);
+    this.queryParams = resolveParams(this.queryParams, templateValues, encoded);
+    this.matrixParams = resolveParams(this.matrixParams, templateValues, encoded);
+    this.resolvedTemplate =
+        resolvedTemplate == null
+            ? resolveVariables(uriTemplate, templateValues, encoded)
+            : resolveVariables(resolvedTemplate, templateValues, encoded);
+    return this;
   }
 
   @Override
   public URI buildFromMap(Map<String, ?> values) {
-    return null;
+    return buildFromMap(values, false);
   }
 
   @Override
   public URI buildFromMap(Map<String, ?> values, boolean encodeSlashInPath)
       throws IllegalArgumentException, UriBuilderException {
-    return null;
+    Map<String, Object> encodedSlashValues = encodeSlash(values, encodeSlashInPath);
+    return doBuild(encodedSlashValues, false);
   }
 
   @Override
   public URI buildFromEncodedMap(Map<String, ?> values)
       throws IllegalArgumentException, UriBuilderException {
-    return null;
+    return doBuild(values, true);
   }
 
   @Override
   public URI build(Object... values) throws IllegalArgumentException, UriBuilderException {
-    return null;
+    return build(values, false);
   }
 
   @Override
   public URI build(Object[] values, boolean encodeSlashInPath)
       throws IllegalArgumentException, UriBuilderException {
-    return null;
+    return buildFromMap(toTemplateVariables(uriTemplate, values));
   }
 
   @Override
   public URI buildFromEncoded(Object... values)
       throws IllegalArgumentException, UriBuilderException {
-    return null;
+    return buildFromEncodedMap(toTemplateVariables(uriTemplate, values));
+  }
+
+  protected URI doBuild(Map<String, ?> values, boolean encoded)
+      throws IllegalArgumentException, UriBuilderException {
+    doResolveTemplates(values, encoded);
+    final URI uri;
+    if (resolvedTemplate != null) {
+      uri = URI.create(resolvedTemplate);
+    } else {
+      uri = toURI();
+    }
+    return uri;
+  }
+
+  private URI toURI() {
+    URI uri = null;
+    try {
+      if (schemeSpecificPart != null) {
+        uri = new URI(scheme, schemeSpecificPart, fragment);
+      } else {
+        uri = new URI(scheme, userInfo, host, port, path, toQueryString(queryParams), fragment);
+      }
+    } catch (URISyntaxException e) {
+      throw new UriBuilderException();
+    }
+    return uri;
   }
 
   @Override
   public String toTemplate() {
-    return null;
+    return uriTemplate;
+  }
+
+  @Override
+  public UriBuilder replacePath(String path) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public UriBuilder replaceQuery(String query) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public UriBuilder replaceQueryParam(String name, Object... values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public UriBuilder replaceMatrix(String matrix) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public UriBuilder replaceMatrixParam(String name, Object... values) {
+    throw new UnsupportedOperationException();
+  }
+
+  static String[] of(Object... values) {
+    return Stream.of(values).toArray(String[]::new);
+  }
+
+  static List<String> asList(Object... values) {
+    return Arrays.asList(of(values));
   }
 }

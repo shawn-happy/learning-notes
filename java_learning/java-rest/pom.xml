@@ -24,6 +24,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
+    <spotless.version>1.13.0</spotless.version>
+    <google.format.version>1.6</google.format.version>
   </properties>
 
   <dependencies>
@@ -139,6 +141,19 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>${google.format.version}</version>
+              <style>GOOGLE</style>
+            </googleJavaFormat>
+          </java>
         </configuration>
       </plugin>
     </plugins>
