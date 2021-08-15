@@ -73,25 +73,25 @@ public class GenericCacheEntryEvent<K, V> extends CacheEntryEvent<K, V> {
         + '}';
   }
 
-  public static <K, V> CacheEntryEvent<K, V> createdEvent(Cache source, K key, V value) {
+  public static <K, V> CacheEntryEvent<K, V> createdEvent(Cache<K, V> source, K key, V value) {
     return of(source, EventType.CREATED, key, null, value);
   }
 
   public static <K, V> CacheEntryEvent<K, V> updatedEvent(
-      Cache source, K key, V oldValue, V value) {
+      Cache<K, V> source, K key, V oldValue, V value) {
     return of(source, EventType.UPDATED, key, oldValue, value);
   }
 
-  public static <K, V> CacheEntryEvent<K, V> expiredEvent(Cache source, K key, V oldValue) {
+  public static <K, V> CacheEntryEvent<K, V> expiredEvent(Cache<K, V> source, K key, V oldValue) {
     return of(source, EventType.EXPIRED, key, oldValue, oldValue);
   }
 
-  public static <K, V> CacheEntryEvent<K, V> removedEvent(Cache source, K key, V oldValue) {
+  public static <K, V> CacheEntryEvent<K, V> removedEvent(Cache<K, V> source, K key, V oldValue) {
     return of(source, EventType.REMOVED, key, oldValue, oldValue);
   }
 
   public static <K, V> CacheEntryEvent<K, V> of(
-      Cache source, EventType eventType, K key, V oldValue, V value) {
+      Cache<K, V> source, EventType eventType, K key, V oldValue, V value) {
     return new GenericCacheEntryEvent<>(source, eventType, key, oldValue, value);
   }
 }

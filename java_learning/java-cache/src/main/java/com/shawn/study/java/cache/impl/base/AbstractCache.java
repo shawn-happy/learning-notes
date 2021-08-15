@@ -109,9 +109,8 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
    *   <li>No {@link ExpiryPolicy#getExpiryForUpdate}
    * </ul>
    *
-   * @param key key whose presence in this cache is to be tested.
-   * @param key the specified key
-   * @return
+   * @param key key whose presence in this cache is to be tested. the specified key
+   * @return boolean
    * @throws NullPointerException if key is null
    * @throws IllegalStateException if the cache is {@link #isClosed()}
    * @throws CacheException it there is a problem checking the mapping
@@ -141,8 +140,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
    *   <li>No {@link ExpiryPolicy#getExpiryForUpdate}
    * </ul>
    *
-   * @param key the key whose associated value is to be returned
-   * @param key the specified key
+   * @param key the key whose associated value is to be returned the specified key
    * @return the element, or null, if it does not exist.
    * @throws IllegalStateException if the cache is {@link #isClosed()}
    * @throws NullPointerException if the key is null
@@ -721,6 +719,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz) {
     if (!Configuration.class.isAssignableFrom(clazz)) {
       throw new IllegalArgumentException(
@@ -928,6 +927,7 @@ public abstract class AbstractCache<K, V> implements Cache<K, V> {
     return cacheLoader;
   }
 
+  @SuppressWarnings("unchecked")
   private CacheWriter<K, V> resolveCacheWriter(
       CompleteConfiguration<K, V> configuration, ClassLoader classLoader) {
 
