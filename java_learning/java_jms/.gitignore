@@ -1,0 +1,13 @@
+/.cache/
+/.idea/
+/target/
+/activemq-data/
+
+*.class
+*.classpath
+
+*.log
+
+*.jar
+
+*.war

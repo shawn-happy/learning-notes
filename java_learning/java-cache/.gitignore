@@ -1,0 +1,12 @@
+/.cache/
+/.idea/
+/target/
+
+*.class
+*.classpath
+
+*.log
+
+*.jar
+
+*.war

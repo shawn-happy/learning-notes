@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.shawn.study</groupId>
+  <artifactId>java-cache</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <spotless.version>1.13.0</spotless.version>
+    <google.format.version>1.6</google.format.version>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+
+    <javax.cache-api.version>1.1.1</javax.cache-api.version>
+    <lettuce.version>6.1.0.RELEASE</lettuce.version>
+    <jedis.version>3.5.2</jedis.version>
+    <junit.version>4.13.1</junit.version>
+  </properties>
+
+  <dependencies>
+
+    <!-- Java Cache API -->
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <version>${javax.cache-api.version}</version>
+    </dependency>
+
+
+    <!-- Redis Java Client - Lettuce -->
+    <dependency>
+      <groupId>io.lettuce</groupId>
+      <artifactId>lettuce-core</artifactId>
+      <version>${lettuce.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>${jedis.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>${google.format.version}</version>
+              <style>GOOGLE</style>
+            </googleJavaFormat>
+          </java>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
