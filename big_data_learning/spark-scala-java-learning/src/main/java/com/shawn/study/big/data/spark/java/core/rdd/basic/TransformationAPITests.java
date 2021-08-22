@@ -1,4 +1,4 @@
-package com.shawn.study.big.data.spark.java.core.rdd;
+package com.shawn.study.big.data.spark.java.core.rdd.basic;
 
 import static com.shawn.study.big.data.spark.java.BaseAction.TEST_DATA_SET_1;
 import static com.shawn.study.big.data.spark.java.BaseAction.TEST_DATA_SET_2;
