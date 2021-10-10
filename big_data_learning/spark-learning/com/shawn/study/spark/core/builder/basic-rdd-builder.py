@@ -17,7 +17,7 @@ def build_in_memory_with_custom_partition(spark_context: SparkContext, number: i
 
 
 if __name__ == '__main__':
-    conf = SparkConf().setMaster("local").setAppName('spark-learning')
+    conf = SparkConf().setMaster("local[*]").setAppName('spark-learning')
     sc = SparkContext(conf=conf)
     print("default parallelism number :")
     print(sc.defaultParallelism)
