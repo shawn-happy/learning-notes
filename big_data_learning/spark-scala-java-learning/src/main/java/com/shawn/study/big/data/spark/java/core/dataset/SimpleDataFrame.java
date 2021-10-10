@@ -1,7 +1,7 @@
 package com.shawn.study.big.data.spark.java.core.dataset;
 
-import static org.apache.spark.sql.functions.max;
 import static org.apache.spark.sql.functions.desc;
+import static org.apache.spark.sql.functions.max;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -10,11 +10,11 @@ import org.apache.spark.sql.SparkSession;
 public class SimpleDataFrame {
 
   public static void main(String[] args) {
-    SparkSession spark = SparkSession
-        .builder()
-        .master("local[*]")
-        .appName("Chapter2AGentleIntroductionToSpark")
-        .getOrCreate();
+    SparkSession spark =
+        SparkSession.builder()
+            .master("local[*]")
+            .appName("Chapter2AGentleIntroductionToSpark")
+            .getOrCreate();
 
     // Creating a dataset
     Dataset<Row> myRange = spark.range(1000).toDF("number");
@@ -28,11 +28,12 @@ public class SimpleDataFrame {
     System.out.println(divisBy2.count());
 
     // Loading the Flight Data
-    Dataset<Row> flightData2015 = spark
-        .read()
-        .option("inferSchema", "true")
-        .option("header", "true")
-        .csv("data/flight-data/csv/2015-summary.csv");
+    Dataset<Row> flightData2015 =
+        spark
+            .read()
+            .option("inferSchema", "true")
+            .option("header", "true")
+            .csv("data/flight-data/csv/2015-summary.csv");
 
     // Taking 3 rows from the flight dataset
     Object[] dataObjects = (Object[]) flightData2015.take(3);
@@ -57,9 +58,11 @@ public class SimpleDataFrame {
     flightData2015.createOrReplaceTempView("flight_data_2015");
 
     // Firing SQL Query on the temporary table
-    Dataset<Row> sqlWay = spark.sql("SELECT DEST_COUNTRY_NAME, count(1)\r\n" +
-        "FROM flight_data_2015\r\n" +
-        "GROUP BY DEST_COUNTRY_NAME");
+    Dataset<Row> sqlWay =
+        spark.sql(
+            "SELECT DEST_COUNTRY_NAME, count(1)\r\n"
+                + "FROM flight_data_2015\r\n"
+                + "GROUP BY DEST_COUNTRY_NAME");
 
     // Going by the Dataset way
     Dataset<Row> datasetWay = flightData2015.groupBy("DEST_COUNTRY_NAME").count();
@@ -82,12 +85,13 @@ public class SimpleDataFrame {
       System.out.println(maxRow);
     }
 
-    Dataset<Row> maxSql = spark
-        .sql("SELECT DEST_COUNTRY_NAME, sum(count) as destination_total\r\n" +
-            "FROM flight_data_2015\r\n" +
-            "GROUP BY DEST_COUNTRY_NAME\r\n" +
-            "ORDER BY sum(count) DESC\r\n" +
-            "LIMIT 5");
+    Dataset<Row> maxSql =
+        spark.sql(
+            "SELECT DEST_COUNTRY_NAME, sum(count) as destination_total\r\n"
+                + "FROM flight_data_2015\r\n"
+                + "GROUP BY DEST_COUNTRY_NAME\r\n"
+                + "ORDER BY sum(count) DESC\r\n"
+                + "LIMIT 5");
 
     maxSql.show();
 
@@ -109,5 +113,4 @@ public class SimpleDataFrame {
         .limit(5)
         .explain();
   }
-
 }

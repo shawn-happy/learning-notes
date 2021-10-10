@@ -17,7 +17,7 @@ public class BaseAction {
   public static final List<Integer> TEST_DATA_SET_5 = Arrays.asList(6, 8, 5, 3);
 
   public static void actionWithoutResult(SparkContextActionWithoutResult sparkContextAction) {
-    final SparkConf conf = new SparkConf().setAppName("spark-java-learning").setMaster("local");
+    final SparkConf conf = new SparkConf().setAppName("spark-java-learning").setMaster("local[*]");
     JavaSparkContext sparkContext = null;
     try {
       sparkContext = new JavaSparkContext(conf);
