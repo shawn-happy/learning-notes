@@ -1,3 +1,14 @@
+## introduction
+Go是Google开发的一种静态强类型，编译型，并发型，并具有GC功能的编程语言。 它于2009年由Robert Griesemer、Rob Pike和Ken Thompson作为开源项目发布。
+
+GO是一种类似C语言的编程语言，不仅能够访问底层操作系统，还提供了强大的网络编程，并发编程支持。
+
+GO与C语言有相似的语法，但是对变量的声明不同，GO还支持GC。并发模型采用的是CSP，通过管道传输。
+
+与c++相比，GO并不包括枚举，异常处理，继承，泛型，断言，虚函数等功能。
+
+GO的用途很多，可以进行网络编程、系统编程、并发编程、分布式编程。此外，很多重要的开源项目都是使用Go语言开发的，其中包括 Docker，Kubernetes。
+
 ## Hello World
 ```golang
 package main
@@ -28,7 +39,8 @@ go build helloworld.go
 注意：
 * 如果是`windows os`下`build`出来的，二进制文件以`.exe`结尾
 * 如果是`mac ox`或者`unix`下`build`出来的则没有结尾，直接就是文件名为`helloworld`的可执行的二进制文件。
-## Go基础语法
+## Go basic Syntax
+
 go的基础语法由以下部分组成：
 * package
 * import
@@ -227,9 +239,46 @@ result = 1
 
 ### variables
 
-### function
+`var`声明创建一个具体类型的变量，然后给这个变量命名，并设置它的初始值。
+```golang
+var name type = expression
+```
+`type`和`expression`可以省略一个，但是不能都省略：
+* 如果类型省略，它的类型将由初始表达式决定。
+* 如果表达式省略，则为默认值
+默认值列表：
 
-### code block(expression)
+| 类型                                           | 默认值 |
+| ---------------------------------------------- | ------ |
+| 数字                                           | 0      |
+| bool                                           | false  |
+| String                                         | ""     |
+| 接口和引用类型（slice, 指针, map, 通道, 函数） | nil    |
+| 数组，结构体，复合类型                         | 复合0  |
+
+### function & code block(expression)
+
+函数的声明表达式：
+
+```golang
+func name(parameter-list)(return-list){
+    code block
+}
+```
+
+函数的声明都是以`func`开头，随后跟着函数名，第一个小括号里的是形参列表，第二个小括号里的是可选的返回列表，使用大括号包裹着代码块（函数体）
+
+形参列表指定了一组变量的参数名和参数类型，由调用者提供实参传递。
+
+返回列表则指定了函数返回值的类型，当函数返回一个未命名的返回值或者没有返回值的时候，可以省略括号。
+
+例如：
+
+```golang
+func sum(a, b float64) float64{
+    return a + b
+}
+```
 
 ### comments
  `/*...*/` 是注释，在程序执行时将被忽略。单行注释是最常见的注释形式，你可以在任何地方使用以`//`开头的单行注释。多行注释也叫块注释，均已以`/*`开头，并以 `*/`结尾，且不可以嵌套使用，多行注释一般用于包的文档描述或注释成块的代码片段。
@@ -241,8 +290,8 @@ result = 1
 */
 ```
 
-## 参考文献
+## References
 
 [go程序设计语言](http://www.gopl.io/ch1.pdf)
 
-[包管理](https://segmentfault.com/a/1190000018235929)
+[go wiki](https://en.wikipedia.org/wiki/Communicating_sequential_processes)
