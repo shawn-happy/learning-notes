@@ -1,1 +1,8 @@
 /.idea/
+/target
+*.class
+*.classpath
+*.log
+*.jar
+*.war
+*.iml
