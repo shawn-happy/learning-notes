@@ -1,5 +1,6 @@
 package com.shawn.study.leetcode.array;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,14 +12,17 @@ public class TwoSumTests {
   private static List<int[]> testCases = new ArrayList<>();
   private static List<Integer> targets = new ArrayList<>();
 
-  static {
+  @BeforeClass
+  public static void setup() {
     testCases.add(new int[] {2, 7, 11, 15});
     testCases.add(new int[] {3, 2, 4});
     testCases.add(new int[] {3, 3});
+    testCases.add(new int[] {3, 4, 1, 2});
 
     targets.add(9);
     targets.add(6);
     targets.add(6);
+    targets.add(8);
   }
 
   @Test
