@@ -97,13 +97,70 @@ Java Collections Framework 提供以下好处：
 * `java.util.AbstractList#subList`，如果`fromIndex>toIndex`，则`fromIndex`和`toIndex`属于不合法的参数，会抛出`IllegalArgumentException`。
 * `IllegalStateException`异常，通常是在迭代器里出现。`java.util.AbstractList.Itr#remove`。
 
-`Collection`接口还需要重新定义`equals(),hashCode()`。这样不同的集合实现可以自定义不同的行为。
+`Collection`接口还需要重新定义`equals(),hashCode()`。这样不同的集合实现可以自定义不同的行为。例如`contains`方法。
 
 `Collection`有三个主要的子接口
 
 * `java.util.List`：有序集合，又被称为序列，元素有特定的顺序，且可以重复插入，可以按照下标访问，也可以按照下标插入，删除，更新。
 * `java.util.Set`：无序集合，不能通过下标操作。
-* `java.util.Queue`
+* `java.util.Queue`：表示队列，一种先进先出(FIFO)的线性结构。
+
+Code Example:
+
+```java
+public class CollectionDemo {
+
+  public static void main(String[] args) {
+    testThrowUnsupportedOperationException();
+    testThrowNullPointerException();
+    testThrowIllegalArgumentException();
+
+    testEquals();
+  }
+
+  private static void testEquals() {
+    List<Integer> list1 = new ArrayList<>();
+    list1.add(1);
+    list1.add(2);
+    List<Integer> list2 = new ArrayList<>();
+    list2.add(1);
+    list2.add(2);
+    System.out.println(list1.equals(list2));
+  }
+
+  private static void testThrowIllegalArgumentException() {
+    List<Integer> collection = new ArrayList<>();
+    try {
+      collection.subList(1, 0);
+    } catch (IllegalArgumentException e) {
+      System.out.println("IllegalArgumentException");
+    }
+  }
+
+  private static void testThrowNullPointerException() {
+    Collection<Integer> collection = new ArrayList<>();
+    collection.add(1);
+    Object[] array = null;
+    try {
+      collection.toArray(array);
+    } catch (NullPointerException e) {
+      System.out.println("NullPointerException");
+    }
+  }
+
+  private static void testThrowUnsupportedOperationException() {
+    Collection<Integer> collection =
+        Collections.unmodifiableCollection(Arrays.asList(1, 3, 4, 5, 2, 7));
+    try {
+      collection.add(8);
+    } catch (UnsupportedOperationException e) {
+      System.out.println("unmodifiable collection");
+    }
+  }
+}
+```
+
+### List Interface
 
 
 
