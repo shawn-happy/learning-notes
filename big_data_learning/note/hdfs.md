@@ -139,7 +139,11 @@ HDFS一个优化的存放策略是将一个副本存放在本地机架的节点�
 
 #### Replica Selection
 
-为了降低整体的带宽消耗和读取延时，HDFS会尽量让读取程序读取离它最近的副本。如果在读取程序的同一个机架上有一个副本，那么就读取该副本。如果一个HDFS集群跨越多个数据中心，那么客户端也将首先读本地数据中心的副本。
+为了降低整体的带宽消耗和读取延时，HDFS会尽量让读取程序读取离它最近的副本。
+
+如果在读取程序的同一个机架上有一个副本，那么就读取该副本。
+
+如果一个HDFS集群跨越多个数据中心，那么客户端也将首先读本地数据中心的副本。
 
 最近节点距离计算：两个节点到达最近的共同祖先的距离总和。
 
@@ -153,9 +157,58 @@ Namenode启动后会进入一个称为安全模式的特殊状态。处于安全
 
 ### Data Streaming
 
+本小节的重点主要是学习一下HDFS的读写流程，在此之前还是需要明白block, packet, chunk等概念
+
+* block: 上面已经介绍过了，文件上传前需要分块，这个块就是block，一般为128MB，当然你可以去改，不顾不推荐。因为块太小：寻址时间占比过高。块太大：Map任务数太少，作业执行速度变慢。它是最大的一个单位。
+* packet: 第二大的单位，它是client端向DataNode，或DataNode的PipLine之间传数据的基本单位，默认64KB。
+* chunk: 最小的单位，它是client向DataNode，或DataNode的PipLine之间进行数据校验的基本单位，默认512Byte，因为用作校验，故每个chunk需要带有4Byte的校验位。所以实际每个chunk写入packet的大小为516Byte。由此可见真实数据与校验值数据的比值约为128 : 1。（即64*1024 / 512）
+
+在client端向DataNode传数据的时候，HDFSOutputStream会有一个chunk buff，写满一个chunk后，会计算校验和并写入当前的chunk。之后再把带有校验和的chunk写入packet，当一个packet写满后，packet会进入dataQueue队列，其他的DataNode就是从这个dataQueue获取client端上传的数据并存储的。同时一个DataNode成功存储一个packet后之后会返回一个ack packet，放入ack Queue中。
+
 #### Write
 
+![hdfs-write](./images/hdfs-write.jpeg)
+
+如图所示，写流程为：
+
+1. HDFS Client会调用DistributedFileSystem对象的create方法
+2. DistributedFileSystem向NameNode发送一个RPC请求，NameNode会去做各种各样的检验，比如目标文件是否存在，是否有权限写入等等，如果检验通过，NameNode就会创建一个文件，否则会抛出异常。
+3. DistributedFileSystem返回一个FSDataOutputStream对象给客户端用于写数据。FSDataOutputStream封装了一个DFSOutputStream对象负责客户端跟DataNode以及NameNode的通信。
+4. DFSOutputStream将数据分成一个个packet(默认大小是64kb)，并写入数据队列。DataStreamer会处理数据队列，并请求NameNode返回一组DataNode List，用于构成DataNode Pipeline，DataStreamer将数据包发送给管线中的第一个DataNode，第一个DataNode将接收到的数据发送给第二个DataNode，第二个发送给第三个，依此类推下去。
+5. DFSOutputStream还维护着一个数据包队列来确认数据包是否成功写入，这个队列成为ack队列。
+6. 当一个Block传输完成之后，HDFS会再次请求NameNode传输。
+7. 当客户端完成了数据的传输，调用数据流的close方法。该方法将数据队列中的剩余数据包写到DataNode的管线并等待管线的确认。
+8. 客户端收到管线中所有正常DataNode的确认消息后，通知NameNode文件写完了。
+9. 客户端完成数据的写入后，对数据流调用close方法。该操作将剩余的所有数据包写入DataNode管线，并在联系到NameNode且发送文件写入完成信号之前，等待确认。
+
+如果写入DataNode发生故障：
+
+1. 关闭管线，把确认队列中的所有包都添加回数据队列的最前端，以保证故障节点下游的DataNode不会漏掉任何一个数据包。
+
+2. 为存储在另一正常DataNode的当前数据块指定一个新的标志，并将该标志传送给NameNode，以便故障DataNode在恢复后可以删除存储的部分数据块。
+3. 如果在数据写入期间DataNode发生故障，待确认消息队列迟迟得不到确认消息，这时会有一个超时时间，超过这个时间，从管线中删除故障数据节点并且把余下的数据块写入管线中另外两个正常的DataNode（也就是这两个节点组成新的管线并且blockID的值要发生变化，另外注意正常的节点中包括之前上传的部分小的64K文件，所以需要对其就行一个统计，确认我现在数到第几个包了，避免重复提交）。NameNode在检测到副本数量不足时，会在另一个节点上创建新的副本。
+4. 后续的数据块继续正常接受处理。
+5. 在一个块被写入期间可能会有多个DataNode同时发生故障，但非常少见。只要设置了`dfs.replication.min`的副本数（默认为1），写操作就会成功，并且这个块可以在集群中异步复制，直到达到其目标副本数（`dfs.replication`默认值为3）。
+
+NameNode已经知道文件由哪些块组成，所以它在返回成功前只需要等待数据块进行最小量的复制。
+
+注意：如果在数据写入期间DataNode发生故障，待确认消息队列迟迟得不到确认消息，这时会有一个超时时间，超过这个时间
+
+文件写文件的时候只有一个客户端能写，保证数据上传成功。
+
 #### Read
+
+![hdfs-read](./images/hdfs-read.png)
+
+1. HDFS Client调用DistributedFileSystem对象的open()方法来打开希望读取的文件。
+2. DistributedFileSystem向NameNode发送一个RPC请求，通过查询元数据，找到每个block所在的DataNode地址，并将这些信息返回给客户端。
+3. 客户端通过NameNode返回的信息调用FSDataInputStream对象，FSDataInputStream里封装一个DFSInputStream对象，读取最适合的副本节点（本地→同机架→数据中心）。然后反复调用read()方法(重复步骤4)，将数据从DataNode传输到Client。
+4. 下载完成block后，客户端会通过dn存储的校验和来确保文件的完整性，DFSInputStream会关闭连接，然后寻找下一个块的最佳DataNode(重复步骤5)。
+
+读取发生故障时：
+
+1. DFSInputStream与DataNode通信时遇到错误，会尝试从这个块的另一个最近的DataNode读取数据，并且保证以后不会重复读取改DataNode上的后续块。
+2. DFSInputStream如果发生校验不通过或者从DataNode发来的数据不完整，有损坏的块，DFSInputStream会试图从其他DataNode读取其副本，也会将被损坏的块通知给NameNode。
 
 ### DataNode
 

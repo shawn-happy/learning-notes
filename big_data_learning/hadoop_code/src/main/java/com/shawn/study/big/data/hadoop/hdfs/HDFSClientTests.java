@@ -1,4 +1,4 @@
-package com.shawn.study.big.data.hadoop;
+package com.shawn.study.big.data.hadoop.hdfs;
 
 import static org.junit.Assert.assertTrue;
 
@@ -57,7 +57,7 @@ public class HDFSClientTests {
   @Test
   public void create() throws Exception {
     // 如果文件存在，默认会覆盖, 可以通过第二个参数进行控制。第三个参数可以控制使用缓冲区的大小
-    Path path = new Path(BASE_PATH + "/hello.txt");
+    Path path = new Path("/test" + "/hello.txt");
     FSDataOutputStream out = fileSystem.create(path, true, 4096);
     out.write("hello hadoop!\n".getBytes());
     out.write("hello spark!\n".getBytes());
