@@ -202,31 +202,463 @@ NameNode已经知道文件由哪些块组成，所以它在返回成功前只需
 
 1. HDFS Client调用DistributedFileSystem对象的open()方法来打开希望读取的文件。
 2. DistributedFileSystem向NameNode发送一个RPC请求，通过查询元数据，找到每个block所在的DataNode地址，并将这些信息返回给客户端。
-3. 客户端通过NameNode返回的信息调用FSDataInputStream对象，FSDataInputStream里封装一个DFSInputStream对象，读取最适合的副本节点（本地→同机架→数据中心）。然后反复调用read()方法(重复步骤4)，将数据从DataNode传输到Client。
-4. 下载完成block后，客户端会通过dn存储的校验和来确保文件的完整性，DFSInputStream会关闭连接，然后寻找下一个块的最佳DataNode(重复步骤5)。
+3. 客户端通过NameNode返回的信息调用FSDataInputStream对象，FSDataInputStream里封装一个DFSInputStream对象，读取最适合的副本节点（本地→同机架→数据中心）。然后反复调用read()方法，将数据从DataNode传输到Client。
+4. 下载完成block后，客户端会通过DataNode存储的校验和来确保文件的完整性，DFSInputStream会关闭与该DataNode的连接，然后寻找下一个块的最佳DataNode(重复步骤3)。
+4. Client从流中读取数据时，块是按照打开DFSInputstream与DataNode新建连接的顺序读取的。它也会根据需要询问NameNode来检索下一批数据块的DataNode的位置。一旦客户端完成读取，就对FSDataInputstream调用close()方法。
 
 读取发生故障时：
 
 1. DFSInputStream与DataNode通信时遇到错误，会尝试从这个块的另一个最近的DataNode读取数据，并且保证以后不会重复读取改DataNode上的后续块。
 2. DFSInputStream如果发生校验不通过或者从DataNode发来的数据不完整，有损坏的块，DFSInputStream会试图从其他DataNode读取其副本，也会将被损坏的块通知给NameNode。
 
-### DataNode
-
 ### NameNode & Secondary NameNode
 
-### NameNode  HA
+#### FsImage & Edits
 
-### Other
+在HDFS中，FsImage 和Edits是NameNode两个非常重要的文件。
+
+NameNode的存储目录树的信息，而目录树的信息则存放在FsImage 文件中，当NameNode启动的时候会首先读取整个FsImage文件，将信息装载到内存中。Edits文件存储日志信息，在NameNode上所有对目录的操作，增加，删除，修改等都会保存到Edits文件中，并不会同步到FsImage中，当NameNode关闭的时候，也不会将FsImage 和Edits进行合并。
+所以当NameNode启动的时候，首先装载FsImage文件，然后按照Edits中的记录执行一遍所有记录的操作，最后把信息的目录树写入FsImage中，并删掉Edits文件，重新启用新的Edits文件。
+
+#### Secondary NameNode
+
+没有NameNode，文件系统将无法使用，如果运行NameNode服务的机器毁坏，文件系统上所有的文件将会丢失，所以NameNode的容错就会非常重要。
+
+另外，如果重启了NameNode也会花费很长的时间，因为有很多Edits需要与FsImage合并。
+
+最后，如果长时间添加数据到Edits中，会导致文件过大，效率降低，而且一旦断电，恢复元数据需要的时间过长。因此，需要定期进行 FsImage 和 Edits 的合并，如果这个操作由NameNode节点完成，又会效率过低。
+
+因此，引入一个新的节点Secondary Namenode，专门用于 FsImage 和 Edits 的合并。
+
+![NN-2NN-work](./images/NN-2NN-work.jpg)
+
+1. 第一阶段：NameNode启动
+    （1）第一次启动NameNode格式化后，创建Fsimage和Edits文件。如果不是第一次启动，直接加载编辑日志和镜像文件到内存。
+    （2）客户端对元数据进行增删改的请求。
+    （3）NameNode记录操作日志。
+    （4）NameNode在内存中对元数据进行增删改。
+2. 第二阶段：Secondary NameNode工作
+    （1）Secondary NameNode询问NameNode是否需要CheckPoint。直接带回NameNode是否检查结果。
+    （2）Secondary NameNode请求执行CheckPoint。
+    （3）NameNode滚动正在写的Edits日志。
+    （4）将滚动前的编辑日志和镜像文件拷贝到Secondary NameNode。
+    （5）Secondary NameNode加载编辑日志和镜像文件到内存，并合并。
+    （6）生成新的镜像文件fsimage.chkpoint。
+    （7）拷贝fsimage.chkpoint到NameNode。
+    （8）NameNode将fsimage.chkpoint重新命名成fsimage。
+
+#### Checkpoint
+
+（1）通常情况下，SecondaryNameNode每隔一小时执行一次。
+ [hdfs-default.xml]
+
+```xml
+<property>
+  <name>dfs.namenode.checkpoint.period</name>
+  <value>3600</value>
+</property>
+```
+
+（2）一分钟检查一次操作次数，当操作次数达到1百万时，SecondaryNameNode执行一次。
+
+```xml
+<property>
+  <name>dfs.namenode.checkpoint.txns</name>
+  <value>1000000</value>
+<description>操作动作次数</description>
+</property>
+
+<property>
+  <name>dfs.namenode.checkpoint.check.period</name>
+  <value>60</value>
+<description> 1分钟检查一次操作次数</description>
+</property >
+```
+
+#### NameNode Failover
+
+Namenode故障后，可以采用如下两种方法恢复数据。
+
+1. 将Secondary NameNode中数据拷贝到Namenode存储数据的目录
+
+   * `kill -9 <NameNode_PID>`
+   * 删除NameNode存储的数据
+   * 拷贝Secondary NameNode中数据到原NameNode存储数据目录
+   * 重新启动NameNode，`sbin/hadoop-daemon.sh start namenode`
+
+2. 使用-importCheckpoint选项启动Namenode守护进程，从而将Secondary NameNode中数据拷贝到Namenode目录中。
+
+   * 修改 hdfs-site.xml
+
+     ```xml
+     <property>
+      <name>dfs.namenode.checkpoint.period</name>
+      <value>120</value>
+     </property>
+     <property>
+      <name>dfs.namenode.name.dir</name>
+      <value>/opt/module/hadoop-3.3.1/data/tmp/dfs/name</value>
+     </property>
+     ```
+
+   * `kill -9 <NameNode_PID>`
+
+   * 删除NameNode存储的数据
+
+   * 如果 SecondaryNameNode不和NameNode在一个主机节点上，需要将SecondaryNameNode存储数据的目录拷贝到NameNode存储数据的平级目录，并删除in_use.lock文件
+
+   * 执行`bin/hdfs namenode -importCheckpoint `导入检查点数据
+
+   * 执行`sbin/hadoop-daemon.sh start namenode`，启动NameNode
+
+#### Safe Mode
+
+**概述：**
+
+安全模式是hadoop的一种保护机制，用于保证集群中的数据块的安全性。
+　
+Namenode启动时，首先将映像文件（fsimage）载入内存，并执行编辑日志（edits）中的各项操作。一旦在内存中成功建立文件系统元数据的映像，则创建一个新的fsimage文件和一个空的编辑日志。此时，namenode开始监听datanode请求。但是此刻，namenode运行在安全模式，即namenode的文件系统对于客户端来说是只读的。
+
+系统中的数据块的位置并不是由namenode维护的，而是以块列表的形式存储在datanode中。在系统的正常操作期间，namenode会在内存中保留所有块位置的映射信息。在安全模式下，各个datanode会向namenode发送最新的块列表信息，namenode了解到足够多的块位置信息之后，即可高效运行文件系统。
+
+如果满足“最小副本条件”，namenode会在30秒钟之后就退出安全模式。所谓的最小副本条件指的是在整个文件系统中99.9%的块满足最小副本级别（默认值：dfs.replication.min=1）。在启动一个刚刚格式化的HDFS集群时，因为系统中还没有任何块，所以namenode不会进入安全模式。
+
+**基本语法：**
+
+集群处于安全模式，不能执行重要操作（写操作）。集群启动完成后，自动退出安全模式。
+
+1. `bin/hdfs dfsadmin -safemode get`      （功能描述：查看安全模式状态）
+2. `bin/hdfs dfsadmin -safemode enter`    （功能描述：进入安全模式状态）
+3. `bin/hdfs dfsadmin -safemode leave`    （功能描述：离开安全模式状态）
+4. `bin/hdfs dfsadmin -safemode wait` （功能描述：等待安全模式状态）
+
+### NameNode  HA With QJM
+
+#### Architecture
+
+NameNode 保存了整个 HDFS 的元数据信息，一旦 NameNode 挂掉，整个 HDFS 就无法访问。为了提高HDFS的高可用性，在 Hadoop2.0 中，HDFS NameNode支持了高可用架构。
+
+![NameNode-HA.png](./images/NameNode-HA.png)
+
+从上图中，我们可以看出 NameNode 的高可用架构主要分为下面几个部分：
+
+Active NameNode 和 Standby NameNode：两台 NameNode 形成互备，一台处于 Active 状态，为主 NameNode，另外一台处于 Standby 状态，为备 NameNode，只有主 NameNode 才能对外提供读写服务。
+
+主备切换控制器 ZKFailoverController，简称ZKFC：ZKFailoverController 作为独立的进程运行，对 NameNode 的主备切换进行总体控制。ZKFC主要负责：
+
+1. 对NameNodes的Health Monitoring。ZKFC 使用健康检查命令定期 ping 其本地 NameNode。 只要 NameNode 及时响应健康状态，ZKFC 就认为该节点是健康的。 如果节点崩溃、冻结或以其他方式进入不健康状态，健康监视器会将其标记为不健康。
+2. ZK Session管理：当本地 NameNode 健康时，ZKFC 在 ZooKeeper 中保持一个会话打开。 如果本地 NameNode 处于活动状态，它还持有一个特殊的“锁”znode。 此锁使用 ZooKeeper 对“临时”节点的支持； 如果会话过期，锁节点将被自动删除。
+3. ZK选主：如果本地 NameNode 是健康的，且 ZKFC 发现没有其它的节点当前持有 znode 锁，它将为自己获取该锁。如果成功，则它已经赢得了选择，并负责运行故障转移进程以使它的本地 NameNode 为 Active。故障转移进程与前面描述的手动故障转移相似，首先如果必要保护之前的现役 NameNode，然后本地 NameNode 转换为 Active 状态。
+
+Zookeeper 集群：为主备切换控制器提供主备选举支持。
+
+共享存储系统：共享存储系统是实现 NameNode 的高可用最为关键的部分，共享存储系统保存了 NameNode 在运行过程中所产生的 HDFS 的元数据。主 NameNode 和NameNode 通过共享存储系统实现元数据同步。在进行主备切换的时候，新的主 NameNode 在确认元数据完全同步之后才能继续对外提供服务，主要有JournalNode 。
+
+DataNode 节点：除了通过共享存储系统共享 HDFS 的元数据信息之外，主 NameNode 和备 NameNode 还需要共享 HDFS 的数据块和 DataNode 之间的映射关系。DataNode 会同时向主 NameNode 和备 NameNode 上报数据块的位置信息。
+
+#### Automatic Failover
+
+1. 故障检测：集群中的每台 NameNode 机器都在 ZooKeeper 中维护一个持久会话。 如果机器崩溃，ZooKeeper 会话将过期，通知其他 NameNode 应该触发故障转移。
+2. 选出Active NameNode：ZooKeeper 提供了一种简单的机制来专门选择一个NameNode为Active NameNode。 如果当前活动的 NameNode 崩溃，另一个节点可能会在 ZooKeeper 中获得一个特殊的排他锁，表明它应该成为下一个活动的。
+
+### DataNode
+
+**DataNode工作机制**
+
+![DataNode-work](./images/DataNode-work.png)
+
+1. 一个数据块在DataNode上以文件形式存储在磁盘上，包括两个文件，一个是数据本身，一个是元数据包括数据块的长度，块数据的校验和，以及时间戳。
+
+2. DataNode启动后向NameNode注册，通过后，周期性（1小时）的向NameNode上报所有的块信息。
+
+3. 心跳是每3秒一次，心跳返回结果带有NameNode给该DataNode的命令如复制块数据到另一台机器，或删除某个数据块。如果超过10分钟没有收到某个DataNode的心跳，则认为该节点不可用。
+
+4. 集群运行中可以安全加入和退出一些机器。
+
+**数据完整性**
+
+![data-complete](./images/Data-Complete.png)
+
+如下是DataNode节点保证数据完整性的方法。
+
+1. 当DataNode读取Block的时候，它会计算CheckSum。
+2. 如果计算后的CheckSum，与Block创建时值不一样，说明Block已经损坏。
+3. Client读取其他DataNode上的Block。
+4. 常见的校验算法 crc（32），md5（128），sha1（160）
+5. DataNode在其文件创建后周期验证CheckSum。
 
 ### Shell
 
+https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/FileSystemShell.html
+
+https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html#dfsadmin
+
 ### Java API
+
+```java
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.util.Progressable;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+/**
+ * HDFS常用API
+ */
+public class HdfsTest {
+
+    private static final String HDFS_PATH = "hdfs://192.168.0.106:8020";
+    private static final String HDFS_USER = "root";
+    private static FileSystem fileSystem;
+
+
+    /**
+     * 获取fileSystem
+     */
+    @Before
+    public void prepare() {
+        try {
+            Configuration configuration = new Configuration();
+            // 这里我启动的是单节点的Hadoop,副本系数可以设置为1,不设置的话默认值为3
+            configuration.set("dfs.replication", "1");
+            fileSystem = FileSystem.get(new URI(HDFS_PATH), configuration, HDFS_USER);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 创建目录,支持递归创建
+     */
+    @Test
+    public void mkDir() throws Exception {
+        fileSystem.mkdirs(new Path("/hdfs-api/test0/"));
+    }
+
+
+    /**
+     * 创建具有指定权限的目录
+     */
+    @Test
+    public void mkDirWithPermission() throws Exception {
+        fileSystem.mkdirs(new Path("/hdfs-api/test1/"),
+                new FsPermission(FsAction.READ_WRITE, FsAction.READ, FsAction.READ));
+    }
+
+    /**
+     * 创建文件,并写入内容
+     */
+    @Test
+    public void create() throws Exception {
+        // 如果文件存在，默认会覆盖, 可以通过第二个参数进行控制。第三个参数可以控制使用缓冲区的大小
+        FSDataOutputStream out = fileSystem.create(new Path("/hdfs-api/test/a.txt"),
+                true, 4096);
+        out.write("hello hadoop!".getBytes());
+        out.write("hello spark!".getBytes());
+        out.write("hello flink!".getBytes());
+        // 强制将缓冲区中内容刷出
+        out.flush();
+        out.close();
+    }
+
+
+    /**
+     * 判断文件是否存在
+     */
+    @Test
+    public void exist() throws Exception {
+        boolean exists = fileSystem.exists(new Path("/hdfs-api/test/a.txt"));
+        System.out.println(exists);
+    }
+
+
+    /**
+     * 查看文件内容
+     */
+    @Test
+    public void readToString() throws Exception {
+        FSDataInputStream inputStream = fileSystem.open(new Path("/hdfs-api/test/a.txt"));
+        String context = inputStreamToString(inputStream, "utf-8");
+        System.out.println(context);
+    }
+
+
+    /**
+     * 文件重命名
+     */
+    @Test
+    public void rename() throws Exception {
+        Path oldPath = new Path("/hdfs-api/test/a.txt");
+        Path newPath = new Path("/hdfs-api/test/b.txt");
+        boolean result = fileSystem.rename(oldPath, newPath);
+        System.out.println(result);
+    }
+
+
+    /**
+     * 删除文件
+     */
+    @Test
+    public void delete() throws Exception {
+        /*
+         *  第二个参数代表是否递归删除
+         *    +  如果path是一个目录且递归删除为true, 则删除该目录及其中所有文件;
+         *    +  如果path是一个目录但递归删除为false,则会则抛出异常。
+         */
+        boolean result = fileSystem.delete(new Path("/hdfs-api/test/b.txt"), true);
+        System.out.println(result);
+    }
+
+
+    /**
+     * 上传文件到HDFS
+     */
+    @Test
+    public void copyFromLocalFile() throws Exception {
+        // 如果指定的是目录，则会把目录及其中的文件都复制到指定目录下
+        Path src = new Path("D:\\BigData-Notes\\notes\\installation");
+        Path dst = new Path("/hdfs-api/test/");
+        fileSystem.copyFromLocalFile(src, dst);
+    }
+
+    /**
+     * 上传文件到HDFS
+     */
+    @Test
+    public void copyFromLocalBigFile() throws Exception {
+
+        File file = new File("D:\\kafka.tgz");
+        final float fileSize = file.length();
+        InputStream in = new BufferedInputStream(new FileInputStream(file));
+
+        FSDataOutputStream out = fileSystem.create(new Path("/hdfs-api/test/kafka5.tgz"),
+                new Progressable() {
+                    long fileCount = 0;
+
+                    public void progress() {
+                        fileCount++;
+                        // progress方法每上传大约64KB的数据后就会被调用一次
+                        System.out.println("文件上传总进度：" + (fileCount * 64 * 1024 / fileSize) * 100 + " %");
+                    }
+                });
+
+        IOUtils.copyBytes(in, out, 4096);
+
+    }
+
+    /**
+     * 从HDFS上下载文件
+     */
+    @Test
+    public void copyToLocalFile() throws Exception {
+        Path src = new Path("/hdfs-api/test/kafka.tgz");
+        Path dst = new Path("D:\\app\\");
+        /*
+         * 第一个参数控制下载完成后是否删除源文件,默认是true,即删除;
+         * 最后一个参数表示是否将RawLocalFileSystem用作本地文件系统;
+         * RawLocalFileSystem默认为false,通常情况下可以不设置,
+         * 但如果你在执行时候抛出NullPointerException异常,则代表你的文件系统与程序可能存在不兼容的情况(window下常见),
+         * 此时可以将RawLocalFileSystem设置为true
+         */
+        fileSystem.copyToLocalFile(false, src, dst, true);
+    }
+
+
+    /**
+     * 查看指定目录下所有文件的信息
+     */
+    @Test
+    public void listFiles() throws Exception {
+        FileStatus[] statuses = fileSystem.listStatus(new Path("/hdfs-api"));
+        for (FileStatus fileStatus : statuses) {
+            //fileStatus的toString方法被重写过，直接打印可以看到所有信息
+            System.out.println(fileStatus.toString());
+        }
+    }
+
+
+    /**
+     * 递归查看指定目录下所有文件的信息
+     */
+    @Test
+    public void listFilesRecursive() throws Exception {
+        RemoteIterator<LocatedFileStatus> files = fileSystem.listFiles(new Path("/hbase"), true);
+        while (files.hasNext()) {
+            System.out.println(files.next());
+        }
+    }
+
+
+    /**
+     * 查看文件块信息
+     */
+    @Test
+    public void getFileBlockLocations() throws Exception {
+
+        FileStatus fileStatus = fileSystem.getFileStatus(new Path("/hdfs-api/test/kafka.tgz"));
+        BlockLocation[] blocks = fileSystem.getFileBlockLocations(fileStatus, 0, fileStatus.getLen());
+        for (BlockLocation block : blocks) {
+            System.out.println(block);
+        }
+    }
+
+
+    /**
+     * 测试结束后,释放fileSystem
+     */
+    @After
+    public void destroy() {
+        fileSystem = null;
+    }
+
+
+    /**
+     * 把输入流转换为指定编码的字符
+     *
+     * @param inputStream 输入流
+     * @param encode      指定编码类型
+     */
+    private static String inputStreamToString(InputStream inputStream, String encode) {
+        try {
+            if (encode == null || ("".equals(encode))) {
+                encode = "utf-8";
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, encode));
+            StringBuilder builder = new StringBuilder();
+            String str = "";
+            while ((str = reader.readLine()) != null) {
+                builder.append(str).append("\n");
+            }
+            return builder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+
+```
 
 ### Related Documentation
 
 [Hadoop权威指南-第三章](https://book.douban.com/subject/26359169/)
 
 [HDFS官网](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html)
+
+[BigData-Notes](https://github.com/heibaiying/BigData-Notes)
 
 [美团对HDFS的应用](https://tech.meituan.com/2017/04/14/hdfs-federation.html)
 
