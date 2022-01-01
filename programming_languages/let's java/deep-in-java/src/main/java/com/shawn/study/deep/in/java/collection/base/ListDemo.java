@@ -1,4 +1,4 @@
-package com.shawn.study.deep.in.java.collection;
+package com.shawn.study.deep.in.java.collection.base;
 
 import java.util.*;
 
