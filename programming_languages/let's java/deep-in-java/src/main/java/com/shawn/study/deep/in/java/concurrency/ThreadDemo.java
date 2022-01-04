@@ -13,17 +13,9 @@ public class ThreadDemo {
 
   public static long calc() throws InterruptedException {
     final ThreadDemo test = new ThreadDemo();
-    Thread t1 =
-        new Thread(
-            () -> {
-              test.add();
-            });
+    Thread t1 = new Thread(test::add);
 
-    Thread t2 =
-        new Thread(
-            () -> {
-              test.add();
-            });
+    Thread t2 = new Thread(test::add);
 
     t1.start();
     t2.start();

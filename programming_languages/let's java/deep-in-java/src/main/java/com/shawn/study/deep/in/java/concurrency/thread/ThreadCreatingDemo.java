@@ -8,12 +8,7 @@ package com.shawn.study.deep.in.java.concurrency.thread;
 public class ThreadCreatingDemo {
 
   public static void main(String[] args) {
-    Thread t1 =
-        new Thread(
-            () -> {
-              action();
-            },
-            "t1");
+    Thread t1 = new Thread(ThreadCreatingDemo::action, "t1");
   }
 
   private static void action() {
