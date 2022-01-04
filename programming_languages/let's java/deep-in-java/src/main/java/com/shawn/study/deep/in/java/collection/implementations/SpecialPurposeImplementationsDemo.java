@@ -1,7 +1,5 @@
 package com.shawn.study.deep.in.java.collection.implementations;
 
-import org.junit.Test;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -9,6 +7,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.TimeUnit;
+import org.junit.Test;
 
 public class SpecialPurposeImplementationsDemo {
 
@@ -99,7 +98,7 @@ public class SpecialPurposeImplementationsDemo {
   }
 
   @Test
-  public void testPriorityQueue(){
+  public void testPriorityQueue() {
     PriorityQueue<Integer> integerQueue = new PriorityQueue<>();
 
     integerQueue.add(1);

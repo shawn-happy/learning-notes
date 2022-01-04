@@ -1,10 +1,9 @@
 package com.shawn.study.deep.in.java.collection.implementations;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ConvenienceImplementationsDemo {
 

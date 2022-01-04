@@ -1,4 +1,3 @@
 package com.shawn.study.deep.in.java.configuration;
 
-public class ConfigDemo {
-}
+public class ConfigDemo {}

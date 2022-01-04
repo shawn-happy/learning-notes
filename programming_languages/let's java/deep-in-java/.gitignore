@@ -6,4 +6,4 @@ target/
 *.jar
 *.war
 *.iml
-out/
+c_workspace/out/
