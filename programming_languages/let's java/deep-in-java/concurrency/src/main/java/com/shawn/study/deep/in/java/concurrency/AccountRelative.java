@@ -28,15 +28,11 @@ public class AccountRelative {
 
     Thread t1 =
         new Thread(
-            () -> {
-              a.transfer(b, 100.0);
-            });
+            () -> a.transfer(b, 100.0));
 
     Thread t2 =
         new Thread(
-            () -> {
-              b.transfer(c, 100.0);
-            });
+            () -> b.transfer(c, 100.0));
 
     t2.start();
     t1.start();
