@@ -12,9 +12,20 @@ Kafka 仅仅使用 Consumer Group 这一种机制，却同时实现了传统消�
 
 理想情况下，Consumer 实例的数量应该等于该 Group 订阅主题的分区总数。
 
-Consumer Group通过一组KV对管理offset，形式：`Map<TopicPartition, OffsetAndMetadata>`。
+### __consumer_offset
 
 老版本的 Consumer Group 把位移保存在 ZooKeeper 中。Apache ZooKeeper 是一个分布式的协调服务框架，Kafka 重度依赖它实现各种各样的协调管理。将位移保存在 ZooKeeper 外部系统的做法，最显而易见的好处就是减少了 Kafka Broker 端的状态保存开销。现在比较流行的提法是将服务器节点做成无状态的，这样可以自由地扩缩容，实现超强的伸缩性。Kafka 最开始也是基于这样的考虑，才将 Consumer Group 位移保存在独立于 Kafka 集群之外的框架中。但是ZooKeeper 这类元框架其实并不适合进行频繁的写更新，而 Consumer Group 的位移更新却是一个非常频繁的操作。这种大吞吐量的写操作会极大地拖慢 ZooKeeper 集群的性能，因此采用了将位移保存在 Kafka 内部主题的方法。这个内部主题就是的 __consumer_offsets。
+
+位移主题就是普通的 Kafka 主题。你可以手动地创建它、修改它，甚至是删除它，但是消息格式却是 Kafka 自己定义的，所以不能随意地向这个主题里写入数据，否则可能会让Broker崩溃。
+
+Consumer Group通过一组KV对管理offset，形式：`Map<TopicPartition, OffsetAndMetadata>`。
+
+* Key 中应该保存 3 部分内容：<Group ID，主题名，分区号 >，
+* Value主要存储位移值，保存 Consumer Group 信息的消息，删除 Group 过期位移甚至是删除 Group 的消息（tombstone 消息，即墓碑消息，也称 delete mark，一旦某个 Consumer Group 下的所有 Consumer 实例都停止了，而且它们的位移数据都已被删除时，Kafka 会向位移主题的对应分区写入 tombstone 消息，表明要彻底删除这个 Group 的信息）。
+
+当 Kafka 集群中的第一个 Consumer 程序启动时，Kafka 会自动创建位移主题，默认分区数（offsets.topic.num.partitions）50，副本数（offsets.topic.replication.factor）3
+
+kafka使用Compact策略来删除位移主题中过期的消息，避免该主题无限期膨胀。
 
 ### Rebalance
 
@@ -41,3 +52,21 @@ Rebalance诟病的地方：
 * 在 Rebalance 过程中，所有 Consumer 实例都会停止消费，等待 Rebalance 完成。
 * 其次，目前 Rebalance 的设计是所有 Consumer 实例共同参与，全部重新分配所有分区。其实更高效的做法是尽量减少分配方案的变动。例如实例 A 之前负责消费分区 1、2、3，那么 Rebalance 之后，如果可能的话，最好还是让实例 A 继续消费分区 1、2、3，而不是被重新分配其他的分区。这样的话，实例 A 连接这些分区所在 Broker 的 TCP 连接就可以继续用，不用重新创建连接其他 Broker 的 Socket 资源。
 * 最后，Rebalance 实在是太慢了。曾经，有个国外用户的 Group 内有几百个 Consumer 实例，成功 Rebalance 一次要几个小时！这完全是不能忍受的。最悲剧的是，目前社区对此无能为力，也许最好的解决方案就是避免 Rebalance 的发生吧。
+
+不必要的Rebalance：
+
+* 未能及时发送心跳，导致 Consumer 被“踢出”Group 而引发的
+* Consumer 消费时间过长导致的
+
+用于减少Rebalance的4个参数：
+
+* session.timeout.ms
+* heartbeat.interval.ms
+* max.poll.interval.ms
+* GC 参数
+
+推荐配置
+
+* 设置 session.timeout.ms = 6s。
+* 设置 heartbeat.interval.ms = 2s。
+* 要保证 Consumer 实例在被判定为“dead”之前，能够发送至少 3 轮的心跳请求，即 session.timeout.ms >= 3 * heartbeat.interval.ms。
