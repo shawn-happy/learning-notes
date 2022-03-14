@@ -7,6 +7,18 @@
 [Code Exampe](https://www.geeksforgeeks.org/fork-system-call/)
 
 #### Java进程管理
+* 管理当前JVM进程
+  * 获取当前JVM进程iD
+  * 获取当前JVM进程启动时间
+  * 获取当前JVM进程线程数量
+  * 获取当前JVM内存使用情况
+  * 退出当前JVM线程
+* 管理子进程
+  * 启动子进程
+  * 进程API
+  * 主子进程IO交互
+  * 阻塞进程
+  * 退出进程
 
 ### 线程
 操作系统能够进⾏运算调度的最⼩单位。它被包含在进程之中，是进程中的实际运作单位。⼀条线程指的是进程中⼀个单⼀顺序的控制流，⼀个进程中可以并发多个线程，每条线程并⾏执⾏不同的任务。在Unix System V及SunOS中也被称为轻量进程，但轻量进程更多指内核线程，⽽把⽤户线程称为线程。
@@ -33,6 +45,11 @@ Code Example:
 * TERMINATED：线程执⾏结束
 
 ##### Java线程生命周期
+* 启动 - java.lang.Thread#start()
+* ~停止 - java.lang.Thread#stop()~
+* ~暂停 - java.lang.Thread#suspend()~
+* ~恢复 - java.lang.Thread#resume()~
+* 终止 - java.lang.Thread#interrupt(), java.lang.Thread#isInterrupted()
 
 ##### Java线程通讯
 
