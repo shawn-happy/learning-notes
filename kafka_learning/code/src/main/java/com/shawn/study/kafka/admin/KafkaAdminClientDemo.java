@@ -38,9 +38,9 @@ public class KafkaAdminClientDemo {
   @BeforeClass
   public static void createAdminClient() {
     try {
-      CONF.put(BOOTSTRAP_SERVERS_CONFIG, "172.27.128.113:9097");
+      CONF.put(BOOTSTRAP_SERVERS_CONFIG, "localhost:9097");
       CONF.put(REQUEST_TIMEOUT_MS_CONFIG, 120000);
-      CONF.put("zookeeper.connect", "172.27.128.113:21891");
+      CONF.put("zookeeper.connect", "localhost:21891");
       adminClient = AdminClient.create(CONF);
     } catch (Exception e) {
       throw new RuntimeException("create kafka admin client error", e);
