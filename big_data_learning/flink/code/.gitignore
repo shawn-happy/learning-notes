@@ -1,0 +1,14 @@
+.idea
+target
+out
+
+*.class
+*.log
+*.classpath
+
+*.tar
+*.tar.gz
+*.zip
+*.war
+*.jar
+*.ear

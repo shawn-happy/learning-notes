@@ -66,3 +66,10 @@ Kafka 中同一条消息能够被拷贝到多个地方以提供数据冗余，�
 
 ### Follower
 Follower跟随Leader，所有写请求都通过Leader路由，数据变更会广播给所有Follower，Follower与Leader保持数据同步。如果Leader失效，则从Follower中选举出一个新的Leader。当Follower与Leader挂掉、卡住或者同步太慢，leader会把这个follower从“in sync replicas”（ISR）列表中删除，重新创建一个Follower。
+
+### AR, ISR, OSR
+* 分区中的所有副本统称为AR（Assigned Replicas）。
+* 所有与leader副本保持一定程度同步的副本（包括leader副本在内）组成ISR（In-Sync Replicas），ISR集合是AR集合中的一个子集。
+* 与leader副本同步滞后过多的副本（不包括leader副本）组成OSR（Out-of-Sync Replicas）
+
+leader副本负责维护和跟踪ISR集合中所有follower副本的滞后状态，当follower副本落后太多或失效时，leader副本会把它从ISR集合中剔除。如果OSR集合中有follower副本“追上”了leader副本，那么leader副本会把它从OSR集合转移至ISR集合。默认情况下，当leader副本发生故障时，只有在ISR集合中的副本才有资格被选举为新的leader，而在OSR集合中的副本则没有任何机会（不过这个原则也可以通过修改相应的参数配置来改变）。ISR与HW和LEO也有紧密的关系。
