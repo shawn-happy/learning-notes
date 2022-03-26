@@ -24,3 +24,11 @@ Node是kubernetes集群的工作节点，可以是物理机也可以是虚拟机
 Node节点可以在运行期间动态增加到Kubernetes集群中，前提是这个节点上已经正确安装、配置和启动了上述关键进程，在默认情况下kubelet会向Master注册自己，这也是Kubernetes推荐的Node管理方式，服务注册。kubelet进程会定时向Master节点会报自身情况，如果该Node被纳入集群管理范围。因此，Master可以通过获取Node情况来实现高效的负载均衡。如规定时间不上报信息，则会被Master认为是失联，该Node被标记为不可用。
 
 ## kubernetes术语概述
+### Pod
+### Service
+### ReplicaSet
+### Deployment
+### StatefulSet
+### ConfigMap
+### Volume
+### Job
