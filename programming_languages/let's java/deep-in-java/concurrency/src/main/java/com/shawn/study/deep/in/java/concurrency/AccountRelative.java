@@ -26,13 +26,9 @@ public class AccountRelative {
     AccountRelative c = new AccountRelative();
     c.balance = 200.0;
 
-    Thread t1 =
-        new Thread(
-            () -> a.transfer(b, 100.0));
+    Thread t1 = new Thread(() -> a.transfer(b, 100.0));
 
-    Thread t2 =
-        new Thread(
-            () -> b.transfer(c, 100.0));
+    Thread t2 = new Thread(() -> b.transfer(c, 100.0));
 
     t2.start();
     t1.start();

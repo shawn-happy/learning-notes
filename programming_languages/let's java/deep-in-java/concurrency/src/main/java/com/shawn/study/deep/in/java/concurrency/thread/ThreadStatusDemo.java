@@ -7,7 +7,7 @@ package com.shawn.study.deep.in.java.concurrency.thread;
  */
 public class ThreadStatusDemo {
 
-  public static void main(String[] args) throws Exception{
+  public static void main(String[] args) throws Exception {
     Thread t = new Thread(ThreadStatusDemo::sayHi);
     System.out.printf("before start Thread: Thread Status: [%s]\n", t.getState());
     t.start();

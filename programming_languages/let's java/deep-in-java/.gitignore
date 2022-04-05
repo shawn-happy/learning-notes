@@ -7,3 +7,9 @@ target/
 *.war
 *.iml
 c_workspace/out/
+
+*.gz
+*.tar
+*.flattened-pom.xml
+
+cmake-build-debug

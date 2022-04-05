@@ -29,6 +29,9 @@ Node节点可以在运行期间动态增加到Kubernetes集群中，前提是这
 ### ReplicaSet
 ### Deployment
 ### StatefulSet
+### DaemonSet
+### Job
 ### ConfigMap
 ### Volume
-### Job
+### PV & PVC
+### StoreClass
