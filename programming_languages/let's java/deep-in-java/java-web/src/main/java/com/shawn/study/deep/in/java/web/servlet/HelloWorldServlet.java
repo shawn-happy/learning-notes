@@ -1,16 +1,16 @@
-package com.shawn.study.deep.in.java.javaee.servlet;
+package com.shawn.study.deep.in.java.web.servlet;
 
 import java.io.IOException;
-import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 
-public class HelloWorldServlet extends GenericServlet {
+public class HelloWorldServlet extends HttpServlet {
 
   @Override
   public void service(ServletRequest servletRequest, ServletResponse servletResponse)
       throws ServletException, IOException {
-    System.out.println("Hello World");
+    servletResponse.getWriter().println("hello world");
   }
 }

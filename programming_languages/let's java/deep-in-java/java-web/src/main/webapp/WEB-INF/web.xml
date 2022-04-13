@@ -7,12 +7,16 @@
   
   <servlet>
     <servlet-name>helloWorld</servlet-name>
-    <servlet-class>com.shawn.study.deep.in.java.javaee.servlet.HelloWorldServlet</servlet-class>
+    <servlet-class>com.shawn.study.deep.in.java.web.servlet.HelloWorldServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
     <servlet-name>helloWorld</servlet-name>
     <url-pattern>/helloWorld</url-pattern>
   </servlet-mapping>
+  
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
   
 </web-app>
