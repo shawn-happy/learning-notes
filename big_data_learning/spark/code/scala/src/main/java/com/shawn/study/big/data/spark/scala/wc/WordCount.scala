@@ -10,7 +10,7 @@ object WordCount {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setMaster("local").setAppName("wordCount");
     val sc = new SparkContext(conf)
-    val path = "../data/wc/word_count_example"
+    val path = "../../data/wc/word_count_example"
     val rdd = sc.textFile(path)
     wc1(rdd)
     wc2(rdd)
