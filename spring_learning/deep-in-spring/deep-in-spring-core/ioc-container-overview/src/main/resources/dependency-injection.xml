@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util
+        https://www.springframework.org/schema/util/spring-util.xsd">
+
+  <import resource="dependency-lookup.xml"/>
+
+  <bean id="userRepository"
+    class="com.shawn.study.deep.in.spring.core.ioc.repository.UserRepository">
+    <property name="users">
+      <util:list>
+        <ref bean="user"/>
+        <ref bean="superUser"/>
+      </util:list>
+    </property>
+  </bean>
+
+  <bean id="auto-user-repository"
+    class="com.shawn.study.deep.in.spring.core.ioc.repository.UserRepository" autowire="byType"/>
+</beans>

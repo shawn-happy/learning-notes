@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="user" class="com.shawn.study.deep.in.spring.core.ioc.domain.User">
+    <constructor-arg name="id" type="java.lang.String" value="shawn"/>
+    <constructor-arg name="name" type="java.lang.String" value="shawn"/>
+    <constructor-arg index="2" value="26"/>
+    <constructor-arg index="3" type="java.lang.String" value="ShangHai"/>
+  </bean>
+
+  <alias name="user" alias="alias-user"/>
+
+  <bean class="com.shawn.study.deep.in.spring.core.ioc.domain.User">
+    <constructor-arg name="id" type="java.lang.String" value="shawn"/>
+    <constructor-arg name="name" type="java.lang.String" value="shawn"/>
+    <constructor-arg index="2" value="26"/>
+    <constructor-arg index="3" type="java.lang.String" value="ShangHai"/>
+  </bean>
+
+  <bean class="com.shawn.study.deep.in.spring.core.ioc.domain.User">
+    <constructor-arg name="id" type="java.lang.String" value="shawn2"/>
+    <constructor-arg name="name" type="java.lang.String" value="shawn2"/>
+    <constructor-arg index="2" value="27"/>
+    <constructor-arg index="3" type="java.lang.String" value="BeiJing"/>
+  </bean>
+
+</beans>
