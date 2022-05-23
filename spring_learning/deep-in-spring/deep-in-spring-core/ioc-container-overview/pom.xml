@@ -13,9 +13,5 @@
   <groupId>com.shawn.study.deep-in-spring.deep-in-spring-core</groupId>
   <artifactId>ioc-container-overview</artifactId>
 
-  <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-  </properties>
 
 </project>

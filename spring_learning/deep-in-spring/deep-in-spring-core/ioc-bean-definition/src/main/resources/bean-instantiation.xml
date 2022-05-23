@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- 通过构造器实例化 -->
+  <bean id="user-by-constructor" class="com.shawn.study.deep.in.spring.core.ioc.domain.User">
+    <constructor-arg name="id" type="java.lang.String" value="shawn"/>
+    <constructor-arg name="name" type="java.lang.String" value="shawn"/>
+    <constructor-arg index="2" value="26"/>
+    <constructor-arg index="3" type="java.lang.String" value="ShangHai"/>
+  </bean>
+
+  <!-- 通过静态工厂方法 -->
+  <bean id="user-by-factory-method" class="com.shawn.study.deep.in.spring.core.ioc.domain.User"
+    factory-method="getInstance"/>
+
+  <!-- 通过实例工厂方法 -->
+  <bean id="user-by-factory-class" factory-bean="userFactory" factory-method="createUser"/>
+  <bean id="userFactory"
+    class="com.shawn.study.deep.in.spring.core.bean.definition.factory.DefaultUserFactory"/>
+
+  <!-- 通过factoryBean -->
+  <bean id="user-by-factory-bean"
+    class="com.shawn.study.deep.in.spring.core.bean.definition.factory.UserFactoryBean"/>
+
+  <!-- 通过ServiceLoader实例化Bean -->
+  <bean id="user-factory-by-serviceLoader"
+    class="org.springframework.beans.factory.serviceloader.ServiceLoaderFactoryBean">
+    <property name="serviceType"
+      value="com.shawn.study.deep.in.spring.core.bean.definition.factory.UserFactory"/>
+  </bean>
+</beans>
