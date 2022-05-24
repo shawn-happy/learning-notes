@@ -17,6 +17,7 @@
     <module>ioc-container-overview</module>
     <module>ioc-bean-definition</module>
     <module>ioc-bean-dependency-lookup</module>
+    <module>ioc-bean-dependency-injection</module>
   </modules>
 
 </project>
