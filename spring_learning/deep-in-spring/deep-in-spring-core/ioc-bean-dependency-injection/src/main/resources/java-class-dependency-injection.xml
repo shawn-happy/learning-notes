@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util
+        https://www.springframework.org/schema/util/spring-util.xsd">
+
+  <bean id="pojo"
+    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.Pojo">
+    <property name="b" value="0"/>
+    <property name="b2" value="1"/>
+    <property name="s" value="2"/>
+    <property name="s2" value="3"/>
+    <property name="i" value="4"/>
+    <property name="i2" value="5"/>
+    <property name="l" value="6"/>
+    <property name="l2" value="7"/>
+    <property name="f" value="8.1"/>
+    <property name="f2" value="9.1"/>
+    <property name="d" value="10.1"/>
+    <property name="d2" value="11.1"/>
+    <property name="c" value="A"/>
+    <property name="c2" value="B"/>
+    <property name="flag" value="true"/>
+    <property name="flag2" value="false"/>
+    <property name="str" value="字符串"/>
+    <property name="date" ref="date"/>
+    <property name="optional" ref="optional"/>
+    <property name="language" value="JAVA"/>
+
+    <property name="languages">
+      <array>
+        <value>JAVA</value>
+        <value>GO</value>
+      </array>
+    </property>
+
+    <property name="languageList" value="JAVA,PYTHON"/>
+    <property name="languageMap">
+      <map>
+        <entry key="scala" value="SCALA"/>
+        <entry key="python" value="PYTHON"/>
+        <entry key="go" value="GO"/>
+      </map>
+    </property>
+  </bean>
+
+  <bean id="date" class="java.util.Date">
+    <property name="time" value="1622182745"/>
+  </bean>
+
+  <bean id="optional" class="java.util.Optional" factory-method="of">
+    <constructor-arg type="java.lang.Object" value="optional demo"/>
+  </bean>
+
+</beans>

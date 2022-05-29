@@ -5,13 +5,14 @@ import com.shawn.study.deep.in.spring.core.ioc.domain.User;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
-public class XmlDependencyConstructorInjectionDemo {
+public class AutowiringByConstructorDependencyInjectionDemo {
   public static void main(String[] args) {
     DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
     reader.loadBeanDefinitions("classpath:/dependency-constructor-injection.xml");
-    UserHolder userHolder = beanFactory.getBean("userHolder-constructor", UserHolder.class);
+    UserHolder userHolder =
+        beanFactory.getBean("userHolder-auto-constructor-user", UserHolder.class);
     User user = userHolder.getUser();
-    System.out.printf("通过xml配置bean，使用constructor方法手动注入user: %s\n", user);
+    System.out.printf("通过xml配置bean，使用constructor方法自动注入（constructor方式）user: %s\n", user);
   }
 }
