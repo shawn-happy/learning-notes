@@ -7,6 +7,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
 public class UserRepository {
+
+  private User superUser;
+
+  private User user;
+
   private User[] users;
 
   private BeanFactory beanFactory;
@@ -16,6 +21,22 @@ public class UserRepository {
   private ObjectFactory<ApplicationContext> objectFactory;
 
   private Environment environment;
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  public User getSuperUser() {
+    return superUser;
+  }
+
+  public void setSuperUser(User superUser) {
+    this.superUser = superUser;
+  }
 
   public User[] getUsers() {
     return users;
