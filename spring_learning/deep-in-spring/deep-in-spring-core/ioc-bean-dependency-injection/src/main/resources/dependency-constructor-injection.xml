@@ -11,11 +11,11 @@
   <import resource="dependency-lookup.xml"/>
 
   <bean id="userHolder-constructor"
-    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.UserHolder">
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.dependency.injection.domain.UserHolder">
     <constructor-arg index="0" ref="user"/>
   </bean>
 
   <bean id="userHolder-auto-constructor-user"
-    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.UserHolder" autowire="constructor"/>
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.dependency.injection.domain.UserHolder" autowire="constructor"/>
 
 </beans>

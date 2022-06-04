@@ -20,16 +20,16 @@
   <!-- 通过实例工厂方法 -->
   <bean id="user-by-factory-class" factory-bean="userFactory" factory-method="createUser"/>
   <bean id="userFactory"
-    class="com.shawn.study.deep.in.spring.core.bean.definition.factory.DefaultUserFactory"/>
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.definition.factory.DefaultUserFactory"/>
 
   <!-- 通过factoryBean -->
   <bean id="user-by-factory-bean"
-    class="com.shawn.study.deep.in.spring.core.bean.definition.factory.UserFactoryBean"/>
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.definition.factory.UserFactoryBean"/>
 
   <!-- 通过ServiceLoader实例化Bean -->
   <bean id="user-factory-by-serviceLoader"
     class="org.springframework.beans.factory.serviceloader.ServiceLoaderFactoryBean">
     <property name="serviceType"
-      value="com.shawn.study.deep.in.spring.core.bean.definition.factory.UserFactory"/>
+      value="com.shawn.study.deep.in.spring.core.ioc.bean.definition.factory.UserFactory"/>
   </bean>
 </beans>

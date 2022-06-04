@@ -11,13 +11,13 @@
   <import resource="dependency-lookup.xml"/>
 
   <bean id="userHolder"
-    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.UserHolder">
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.dependency.injection.domain.UserHolder">
     <property name="user" ref="user"/>
   </bean>
 
   <bean id="userHolder-auto-set-user-by-type"
-    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.UserHolder" autowire="byType"/>
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.dependency.injection.domain.UserHolder" autowire="byType"/>
 
   <bean id="userHolder-auto-set-user-by-name"
-    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.UserHolder" autowire="byName"/>
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.dependency.injection.domain.UserHolder" autowire="byName"/>
 </beans>

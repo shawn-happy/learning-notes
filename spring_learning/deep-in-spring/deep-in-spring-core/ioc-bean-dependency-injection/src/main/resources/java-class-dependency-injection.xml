@@ -9,7 +9,7 @@
         https://www.springframework.org/schema/util/spring-util.xsd">
 
   <bean id="pojo"
-    class="com.shawn.study.deep.in.spring.core.bean.dependency.injection.domain.Pojo">
+    class="com.shawn.study.deep.in.spring.core.ioc.bean.dependency.injection.domain.Pojo">
     <property name="b" value="0"/>
     <property name="b2" value="1"/>
     <property name="s" value="2"/>
