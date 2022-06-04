@@ -1,5 +1,8 @@
 package com.shawn.study.deep.in.spring.core.ioc.domain;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 public class User {
   private String id;
   private String name;
@@ -62,6 +65,16 @@ public class User {
         + address
         + '\''
         + '}';
+  }
+
+  @PostConstruct
+  public void init() {
+    System.out.println("用户 id:" + id + " 正在初始化中...");
+  }
+
+  @PreDestroy
+  public void destroy() {
+    System.out.println("用户 id: " + id + " 正在销毁中...");
   }
 
   public static User getInstance() {

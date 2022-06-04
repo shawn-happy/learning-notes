@@ -19,6 +19,7 @@
     <module>ioc-bean-dependency-lookup</module>
     <module>ioc-bean-dependency-injection</module>
     <module>ioc-bean-dependency-source</module>
+    <module>ioc-bean-scope</module>
   </modules>
 
 </project>
