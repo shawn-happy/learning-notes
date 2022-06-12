@@ -21,7 +21,8 @@
     <module>ioc-bean-dependency-source</module>
     <module>ioc-bean-scope</module>
     <module>ioc-bean-lifecycle</module>
-    <module>ioc-bean-configuration-metadata</module>
+    <module>configuration-metadata</module>
+    <module>resource</module>
   </modules>
 
 </project>
