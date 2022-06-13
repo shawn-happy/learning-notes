@@ -1,0 +1,5 @@
+user:
+  id: user-yaml
+  name: shawn
+  age: 26
+  address: shanghai

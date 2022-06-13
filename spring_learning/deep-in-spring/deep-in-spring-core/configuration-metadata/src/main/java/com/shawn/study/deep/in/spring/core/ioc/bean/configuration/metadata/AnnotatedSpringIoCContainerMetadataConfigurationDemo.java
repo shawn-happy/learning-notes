@@ -16,13 +16,6 @@ import org.springframework.context.annotation.PropertySource;
 // @PropertySources(@PropertySource(...))
 public class AnnotatedSpringIoCContainerMetadataConfigurationDemo {
 
-  /**
-   * user.name 是 Java Properties 默认存在，当前用户：mercyblitz，而非配置文件中定义"小马哥"
-   *
-   * @param id
-   * @param name
-   * @return
-   */
   @Bean
   public User configuredUser(
       @Value("${user.id}") String id,
