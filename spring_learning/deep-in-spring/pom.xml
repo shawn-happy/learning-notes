@@ -19,6 +19,7 @@
 
     <spring.version>5.2.2.RELEASE</spring.version>
     <yaml.version>1.26</yaml.version>
+    <commons.io.version>2.7</commons.io.version>
     <junit.version>4.13.1</junit.version>
 
     <google.format.version>1.6</google.format.version>
@@ -62,6 +63,12 @@
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
         <version>${yaml.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons.io.version}</version>
       </dependency>
 
     </dependencies>
