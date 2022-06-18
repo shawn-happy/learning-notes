@@ -39,6 +39,9 @@
 
 * 可重载 Properties + MessageFormat 组合 MessageSource 实现`org.springframework.context.support.ReloadableResourceBundleMessageSource`
 
+* `org.springframework.context.support.StaticMessageSource`
+* `org.springframework.context.support.DelegatingMessageSource`
+
 ### 内建依赖
 
 MessageSource 內建 Bean 可能来源
@@ -55,3 +58,11 @@ Spring Boot 为什么要新建 MessageSource Bean?
 * AbstractApplicationContext 的实现决定了 MessageSource 內建实现 
 * Spring Boot 通过外部化配置简化 MessageSource Bean 构建
 * Spring Boot 基于 Bean Validation 校验非常普遍
+
+### 如何实现配置自动更新 MessageSource
+
+* Java NIO 2:`java.nio.file.WatchService`
+
+* Java Concurrency : `java.util.concurrent.ExecutorService`
+
+* Spring:`org.springframework.context.support.AbstractMessageSource`
