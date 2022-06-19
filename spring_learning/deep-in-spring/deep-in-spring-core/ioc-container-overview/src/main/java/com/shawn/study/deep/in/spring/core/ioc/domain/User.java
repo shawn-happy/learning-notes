@@ -8,6 +8,7 @@ public class User {
   private String name;
   private int age;
   private String address;
+  private Company company;
 
   public User() {}
 
@@ -50,6 +51,14 @@ public class User {
     this.address = address;
   }
 
+  public Company getCompany() {
+    return company;
+  }
+
+  public void setCompany(Company company) {
+    this.company = company;
+  }
+
   @Override
   public String toString() {
     return "User{"
@@ -64,6 +73,8 @@ public class User {
         + ", address='"
         + address
         + '\''
+        + ", company="
+        + company
         + '}';
   }
 
