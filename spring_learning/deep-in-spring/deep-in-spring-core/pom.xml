@@ -27,6 +27,7 @@
     <module>bean-validation</module>
     <module>data-binding</module>
     <module>type-conversion</module>
+    <module>generic</module>
   </modules>
 
 </project>
