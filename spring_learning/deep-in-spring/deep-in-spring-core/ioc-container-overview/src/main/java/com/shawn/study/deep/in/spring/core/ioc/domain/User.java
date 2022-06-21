@@ -1,5 +1,6 @@
 package com.shawn.study.deep.in.spring.core.ioc.domain;
 
+import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -9,6 +10,8 @@ public class User {
   private int age;
   private String address;
   private Company company;
+  private Properties context;
+  private String contextAsText;
 
   public User() {}
 
@@ -59,6 +62,22 @@ public class User {
     this.company = company;
   }
 
+  public Properties getContext() {
+    return context;
+  }
+
+  public void setContext(Properties context) {
+    this.context = context;
+  }
+
+  public String getContextAsText() {
+    return contextAsText;
+  }
+
+  public void setContextAsText(String contextAsText) {
+    this.contextAsText = contextAsText;
+  }
+
   @Override
   public String toString() {
     return "User{"
@@ -75,6 +94,11 @@ public class User {
         + '\''
         + ", company="
         + company
+        + ", context="
+        + context
+        + ", contextAsText='"
+        + contextAsText
+        + '\''
         + '}';
   }
 
