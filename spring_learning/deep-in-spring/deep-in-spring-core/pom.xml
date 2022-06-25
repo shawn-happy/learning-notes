@@ -28,6 +28,10 @@
     <module>data-binding</module>
     <module>type-conversion</module>
     <module>generic</module>
+    <module>annotation</module>
+    <module>event</module>
+    <module>environment</module>
+    <module>ioc-application-context-lifecycle</module>
   </modules>
 
 </project>
