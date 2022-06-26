@@ -14,6 +14,7 @@
   <artifactId>deep-in-spring-core</artifactId>
   <packaging>pom</packaging>
   <modules>
+    <module>java-bean-context</module>
     <module>ioc-container-overview</module>
     <module>ioc-bean-definition</module>
     <module>ioc-bean-dependency-lookup</module>
