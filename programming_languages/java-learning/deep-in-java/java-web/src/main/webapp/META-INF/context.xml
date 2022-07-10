@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+  <Resource name="java/TestDB"
+    auth="Container"
+    type="javax.sql.DataSource"
+    driverClassName="com.mysql.jdbc.Driver"
+    url="jdbc:mysql://172.27.67.41:3306/test?serverTimezone=GMT%2B8"
+    username="root"
+    password="123456"
+    maxActive="20"
+    maxIdle="10"
+    maxWait="10000"/>
+</Context>

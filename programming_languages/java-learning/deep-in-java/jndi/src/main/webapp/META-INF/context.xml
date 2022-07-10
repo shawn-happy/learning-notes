@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context> <!-- 上下文资源/组件声明（类似于 Spring 上下文）-->
+
+  <Resource name="jdbc/TestDB"
+    type="javax.sql.DataSource" auth="Container"
+    description="MySQL database for Test"
+    maxActive="100" maxIdle="30" maxWait="10000"
+    username="root" password="123456"
+    driverClassName="com.mysql.cj.jdbc.Driver"
+    url="jdbc:mysql://172.27.67.41:3306/test?serverTimezone=GMT%2B8"/>
+
+</Context>
