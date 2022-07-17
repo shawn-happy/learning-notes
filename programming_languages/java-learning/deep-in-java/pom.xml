@@ -59,6 +59,7 @@
     <jstl.version>1.2</jstl.version>
     <!-- mysql version -->
     <mysql.version>8.0.25</mysql.version>
+    <h2.version>2.1.210</h2.version>
 
     <jackson.version>2.9.9</jackson.version>
   </properties>
@@ -118,6 +119,11 @@
         <artifactId>mysql-connector-java</artifactId>
         <version>${mysql.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>commons-lang</groupId>
@@ -143,19 +149,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-<!--  <repositories>-->
-<!--    <repository>-->
-<!--      <id>spring</id>-->
-<!--      <url>https://maven.aliyun.com/repository/spring</url>-->
-<!--      <releases>-->
-<!--        <enabled>true</enabled>-->
-<!--      </releases>-->
-<!--      <snapshots>-->
-<!--        <enabled>true</enabled>-->
-<!--      </snapshots>-->
-<!--    </repository>-->
-<!--  </repositories>-->
 
   <build>
     <pluginManagement>

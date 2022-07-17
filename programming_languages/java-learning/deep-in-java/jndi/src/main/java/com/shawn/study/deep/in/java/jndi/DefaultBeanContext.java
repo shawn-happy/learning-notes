@@ -22,11 +22,9 @@ public class DefaultBeanContext implements BeanContext {
   private ConcurrentMap<String, Object> beansMap = new ConcurrentHashMap<>();
   private List<String> beanNames = new ArrayList<>();
 
-  public DefaultBeanContext(){
+  public DefaultBeanContext() {}
 
-  }
-
-  public DefaultBeanContext(Hashtable<?, ?> env){
+  public DefaultBeanContext(Hashtable<?, ?> env) {
     this.env = env;
   }
 
