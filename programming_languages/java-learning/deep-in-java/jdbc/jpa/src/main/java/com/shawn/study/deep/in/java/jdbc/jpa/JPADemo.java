@@ -4,7 +4,6 @@ import com.shawn.study.deep.in.java.jdbc.jpa.entity.AddressEntity;
 import com.shawn.study.deep.in.java.jdbc.jpa.entity.Gender;
 import com.shawn.study.deep.in.java.jdbc.jpa.entity.UserEntity;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;

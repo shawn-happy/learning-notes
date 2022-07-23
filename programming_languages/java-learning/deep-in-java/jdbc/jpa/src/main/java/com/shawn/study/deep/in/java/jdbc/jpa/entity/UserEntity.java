@@ -56,6 +56,9 @@ public class UserEntity implements Serializable {
   @JoinColumn(name = "address_id", referencedColumnName = "id")
   private AddressEntity address;
 
+  @Column(columnDefinition = "boolean default true")
+  private boolean locked;
+
   public int getId() {
     return id;
   }
@@ -134,5 +137,13 @@ public class UserEntity implements Serializable {
 
   public void setAddress(AddressEntity address) {
     this.address = address;
+  }
+
+  public boolean isLocked() {
+    return locked;
+  }
+
+  public void setLocked(boolean locked) {
+    this.locked = locked;
   }
 }
