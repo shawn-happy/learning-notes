@@ -63,14 +63,14 @@
     <!-- mysql version -->
     <mysql.version>8.0.25</mysql.version>
     <h2.version>2.1.210</h2.version>
-
     <jackson.version>2.9.9</jackson.version>
 
     <!-- hibernate -->
     <hibernate.version>5.4.29.Final</hibernate.version>
     <!-- validator -->
-    <hibernate.validator.version>5.4.3.Final</hibernate.validator.version>
+    <hibernate.validator.version>6.0.18.Final</hibernate.validator.version>
     <commons-validator.version>1.7</commons-validator.version>
+    <glassfish-el.version>3.0.1-b08</glassfish-el.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
   </properties>
 
@@ -173,9 +173,14 @@
       </dependency>
       <!-- Hibernate Validator -->
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
         <version>${hibernate.validator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>javax.el</artifactId>
+        <version>${glassfish-el.version}</version>
       </dependency>
 
       <!-- Apache Commons Validator -->
