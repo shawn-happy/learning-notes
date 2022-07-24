@@ -9,7 +9,6 @@
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
-    <module>java-code-design</module>
     <module>collection</module>
     <module>concurrency</module>
     <module>jvm</module>
@@ -22,12 +21,9 @@
     <module>jms</module>
     <module>java-web</module>
     <module>configuration</module>
-    <module>jndi</module>
     <module>validation</module>
     <module>java-design-pattern</module>
-    <module>xml</module>
     <module>java-beans</module>
-    <module>java-logging</module>
     <module>commons</module>
   </modules>
 
