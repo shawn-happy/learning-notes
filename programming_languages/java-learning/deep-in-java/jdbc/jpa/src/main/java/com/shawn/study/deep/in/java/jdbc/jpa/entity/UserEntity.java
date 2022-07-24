@@ -16,6 +16,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -24,6 +26,19 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "user")
+@NamedQuery(
+    name = "findByPhoneNumber",
+    query = "select u from UserEntity u where u.phoneNumber = :phoneNumber")
+@NamedQueries(
+    value = {
+      @NamedQuery(
+          name = "findByEmail",
+          query = "select u from UserEntity  u where u.email = :email"),
+      @NamedQuery(name = "findByName", query = "select u from UserEntity  u where u.name = :name"),
+      @NamedQuery(
+          name = "findByNameAndPassword",
+          query = "select u from UserEntity  u where u.name = :name and u.password = :password")
+    })
 public class UserEntity implements Serializable {
 
   @Id

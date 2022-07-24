@@ -8,6 +8,9 @@
   <listener>
     <listener-class>com.shawn.study.deep.in.java.web.listener.BeanContextListener</listener-class>
   </listener>
+  <listener>
+    <listener-class>com.shawn.study.deep.in.java.web.listener.TestingListener</listener-class>
+  </listener>
 
   <filter>
     <filter-name>charsetEncoding</filter-name>

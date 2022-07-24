@@ -1,0 +1,10 @@
+package com.shawn.study.deep.in.java.baens.core;
+
+public interface ComponentContext {
+
+  <C> C getComponent(String name);
+
+  <C> C getComponent(String name, Class<C> type);
+
+  <C> C getComponent(Class<C> type);
+}

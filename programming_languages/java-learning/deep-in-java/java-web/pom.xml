@@ -53,20 +53,50 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>com.shawn.study.deep.in.java</groupId>
+      <artifactId>java-beans</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.shawn.study.deep.in.java</groupId>
+      <artifactId>jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+<!--    <dependency>-->
+<!--      <groupId>org.apache.tomcat</groupId>-->
+<!--      <artifactId>tomcat-catalina-ha</artifactId>-->
+<!--      <scope>runtime</scope>-->
+<!--    </dependency>-->
+
+<!--    <dependency>-->
+<!--      <groupId>org.apache.tomcat</groupId>-->
+<!--      <artifactId>tomcat-dbcp</artifactId>-->
+<!--      <scope>runtime</scope>-->
+<!--    </dependency>-->
+
+<!--    <dependency>-->
+<!--      <groupId>org.apache.tomcat</groupId>-->
+<!--      <artifactId>tomcat-jdbc</artifactId>-->
+<!--      <scope>runtime</scope>-->
+<!--    </dependency>-->
   </dependencies>
 
-<!--  <repositories>-->
-<!--    <repository>-->
-<!--      <id>spring</id>-->
-<!--      <url>https://maven.aliyun.com/repository/spring</url>-->
-<!--      <releases>-->
-<!--        <enabled>true</enabled>-->
-<!--      </releases>-->
-<!--      <snapshots>-->
-<!--        <enabled>true</enabled>-->
-<!--      </snapshots>-->
-<!--    </repository>-->
-<!--  </repositories>-->
+  <repositories>
+    <repository>
+      <id>spring</id>
+      <url>https://maven.aliyun.com/repository/spring</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
