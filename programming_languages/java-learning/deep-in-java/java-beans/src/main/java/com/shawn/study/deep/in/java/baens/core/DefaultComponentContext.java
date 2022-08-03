@@ -93,6 +93,7 @@ public class DefaultComponentContext implements ComponentContext, ComponentConte
     throw new ComponentException("component not found by type: " + type.getName());
   }
 
+  @Override
   public List<String> getComponentNames() {
     return componentNames;
   }

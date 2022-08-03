@@ -17,7 +17,8 @@ public class TestingListener implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     ServletContext sc = sce.getServletContext();
     ComponentContext componentContext = (ComponentContext) sc.getAttribute("COMPONENT_CONTEXT");
-    testJpa(componentContext);
+    testJNDIEnv(componentContext);
+    //    testJpa(componentContext);
   }
 
   @Override
@@ -42,5 +43,10 @@ public class TestingListener implements ServletContextListener {
     if (login == null) {
       LOGGER.log(Level.INFO, "login failed");
     }
+  }
+
+  private void testJNDIEnv(ComponentContext componentContext) {
+    Object maxValue = componentContext.getComponent("maxValue");
+    System.out.println(maxValue);
   }
 }

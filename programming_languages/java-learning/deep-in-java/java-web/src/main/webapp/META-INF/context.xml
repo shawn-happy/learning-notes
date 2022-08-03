@@ -23,4 +23,7 @@
     type="com.shawn.study.deep.in.java.web.orm.jpa.UserRepositoryImplWithJpa"
     factory="org.apache.naming.factory.BeanFactory"
   />
+
+  <Environment name="maxValue" value="12"
+    type="java.lang.Integer" override="false"/>
 </Context>
