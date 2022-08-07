@@ -1,6 +1,6 @@
-## HDFS
+# HDFS
 
-### Introduction
+## Introduction
 
 * HDFS是hadoop自带的分布式文件系统，即Hadoop Distributed File System。
 * HDFS具有高容错性，部署成本低等特性。
@@ -9,7 +9,7 @@
 * HDFS 最初是作为 Apache Nutch 网络搜索引擎项目的基础设施而构建的。
 * HDFS现在是Apache Hadoop的主要项目。
 
-### Advantage
+## Advantage
 
 * **高容错性**：硬件故障是常态而不是例外。 一个 HDFS 实例可能由数百或数千台服务器组成，每台服务器都会存储一部分数据。 事实上，有大量组件并且每个组件都有很大的故障概率，这意味着 HDFS 的某些组件总是无法正常工作。 因此，故障检测和快速、自动恢复是 HDFS 的核心架构目标。由于 HDFS 采用数据的多副本方案，所以部分硬件的损坏不会导致全部数据的丢失。
 * **流式数据访问**：HDFS 更适合批处理而不是用户交互使用，适合一次写入，多次读取。HDFS 设计的重点是支持高吞吐量的数据访问， 而不是低延迟的数据访问。
@@ -18,7 +18,13 @@
 * **移动计算比移动数据更容易**：如果应用程序请求的计算在它所操作的数据附近执行，它会更有效率。 当数据集的大小很大时尤其如此。 这最大限度地减少了网络拥塞并增加了系统的整体吞吐量。 假设通常将计算迁移到数据所在的位置，而不是将数据移动到应用程序运行的位置。 HDFS 为应用程序提供了接口，使它们更接近数据所在的位置。
 * **跨异构硬件和软件平台的可移植性**：HDFS是使用Java开发的，任何支持java的服务器上都可以部署HDFS，所以HDFS 具有良好的跨平台移植性，这使得其他大数据计算框架都将其作为数据持久化存储的首选方案。
 
-### Architecture
+### Disadvantages
+
+* 不适合低延时数据访问，比如毫秒级的存储数据，是做不到的。
+* 无法高效的对大量小文件进行存储。存储大量小文件的话，它会占用NameNode大量的内存来存储文件目录和块信息。这样是不可取的，因为NameNode的内存总是有限的。小文件存储的寻址时间会超过读取时间，它违反了HDFS的设计目标。
+* 不支持并发写入、文件随机修改。一个文件只能有一个写，不允许多个线程同时写；仅支持数据append，不支持文件的随机修改
+
+## Architecture
 
 ![hdfsarchitecture](./images/hdfsarchitecture.png)
 
@@ -26,13 +32,13 @@ HDFS具有主/从架构，分为管理节点和工作节点。HDFS集群由单�
 
 HDFS 公开了一个文件系统命名空间，并允许将用户数据存储在文件中。 在内部，一个文件被分成一个或多个块，这些块存储在一组 DataNode 中。
 
-NameNode主要负责管理文件系统的namespace以及管理Client对文件系统的访问。NameNode 执行文件系统命名空间操作，如打开、关闭和重命名文件和目录。 它还确定块到 DataNode 的映射。 
+NameNode主要负责管理文件系统的namespace以及管理Client对文件系统的访问。NameNode 执行文件系统命名空间操作，如打开、关闭和重命名文件和目录。 它还确定块到 DataNode 的映射。
 
 DataNode主要负责管理连接到它们运行的节点的存储，负责处理来自文件系统客户端的读写请求，根据NameNode的指令执行块的创建、删除和复制。
 
-### Basic Concept
+## Basic Concept
 
-#### Block
+### Block
 
 HDFS为了支持高效的处理数据，引入了数据块的概念，默认大小128MB（1.X的版本默认是64MB）。HDFS上的文件也被划分为块大小的多个分块（Chunk），作为独立的存储单元。HDFS中小于一个块大小的文件，不会占据整个块的空间（例如，当一个1MB的文件存储在一个128MB的块中，文件只使用1MB的存储空间，而不是128MB）。
 
@@ -52,7 +58,7 @@ HDFS为了支持高效的处理数据，引入了数据块的概念，默认大�
 
 传输一个由多个块组成的大文件的时间取决于磁盘传输速率。
 
-#### NameNode & DataNode
+### NameNode & DataNode
 
 **NameNode**是HDFS的管理节点，主要负责的内容有：
 
@@ -74,13 +80,13 @@ HDFS为了支持高效的处理数据，引入了数据块的概念，默认大�
 1. 备份组成文件系统元数据持久状态的文件。Hadoop可以通过配置使NameNode在多个FS上保存元数据的持久状态，这些写操作是实时同步的，并且是原子操作。
 2. Secondary NameNode：并非NameNode的热备。当NameNode挂掉的时候，它并不能马上替换NameNode并提供服务。其主要作用是定期合并Fsimage和Edits，并推送给NameNode。
 
-#### File System Namespace
+### File System Namespace
 
 HDFS支持传统的层次型文件组织结构。用户或者应用程序可以创建目录，然后将文件保存在这些目录里。文件系统名字空间的层次结构和大多数现有的文件系统类似：用户可以创建、删除、移动或重命名文件。当前，HDFS不支持用户磁盘配额和访问权限控制，也不支持硬链接和软链接。但是HDFS架构并不妨碍实现这些特性。
 
 NameNode负责维护文件系统的名字空间，任何对文件系统名字空间或属性的修改都将被NameNode记录下来。应用程序可以设置HDFS保存的文件的副本数目。文件副本的数目称为文件的副本系数，这个信息也是由NameNode保存的。
 
-#### Block Cache
+### Block Cache
 
 1. 通常DataNode从磁盘中读取块，但对于访问频繁的文件，其对应的块可能被显式地缓存在DataNode的内存中，以堆外块内存的形式存在。
 
@@ -89,7 +95,7 @@ NameNode负责维护文件系统的名字空间，任何对文件系统名字空
 3. 用户或者应用程序可以通过在Cache Pool中增加一个Cache Directive来告诉NameNode需要缓存哪些文件以及存多久。
 4. Cache Pool用于管理缓存权限和资源使用。
 
-### HDFS Federation
+## HDFS Federation
 
 从整个HDFS系统架构上看，NameNode是其中最重要、最复杂也是最容易出现问题的地方，而且一旦NameNode出现故障，整个Hadoop集群就将处于不可服务的状态，同时随着数据规模和集群规模地持续增长，很多小量级时被隐藏的问题逐渐暴露出来，比如内存将成为系统横向扩展的瓶颈
 
@@ -97,16 +103,16 @@ NameNode负责维护文件系统的名字空间，任何对文件系统名字空
 
 HDFS 有两个主要层：
 
-- 命名空间（Namespace）
-  - 由目录、文件和块组成。
-  - 它支持所有与命名空间相关的文件系统操作，如创建、删除、修改和列出文件和目录。
-- 块存储服务（Block Storage），它有两个部分：
-  - 块管理（在 Namenode 中执行）
-    - 通过处理注册和定期心跳来提供 Datanode 集群成员资格。
-    - 处理块报告并维护块的位置。
-    - 支持创建、删除、修改、获取区块位置等区块相关操作。
-    - 管理副本放置、复制不足的块的块复制，并删除复制过度的块。
-  - 存储 - 由 Datanodes 通过在本地文件系统上存储块并允许读/写访问来提供。
+* 命名空间（Namespace）
+  * 由目录、文件和块组成。
+  * 它支持所有与命名空间相关的文件系统操作，如创建、删除、修改和列出文件和目录。
+* 块存储服务（Block Storage），它有两个部分：
+  * 块管理（在 Namenode 中执行）
+    * 通过处理注册和定期心跳来提供 Datanode 集群成员资格。
+    * 处理块报告并维护块的位置。
+    * 支持创建、删除、修改、获取区块位置等区块相关操作。
+    * 管理副本放置、复制不足的块的块复制，并删除复制过度的块。
+  * 存储 - 由 Datanodes 通过在本地文件系统上存储块并允许读/写访问来提供。
 
 Namespace管理的元数据除内存常驻外，也会周期Flush到持久化设备上FsImage文件；BlocksMap元数据只在内存中存在；当NameNode发生重启，首先从持久化设备中读取FsImage构建Namespace，之后根据DataNode的汇报信息重新构造BlocksMap。这两部分数据结构是占据了NameNode大部分JVM Heap空间。除了对文件系统本身元数据的管理之外，NameNode还需要维护整个集群的机架及DataNode的信息等信息。为了解决内存限制，单点故障等问题，Hadoop在2.X的发行版中引入Federation，允许HDFS添加多个NameNode，实现横向扩展。
 
@@ -120,16 +126,16 @@ Datanodes 被所有 Namenodes 用作块的公共存储。每个 Datanode 都向�
 
 用户可以通过ViewFileSystem和viewfs://URI进行配置和管理。
 
-- 扩展性：NameNode内存使用和元数据量正相关。随着集群规模和业务的发展，即使经过小文件合并与数据压缩，仍然无法阻止内存会成为HDFS横向扩展的瓶颈。
-- 可用性：NameNode可以横向扩展，Namespace之间相互独立，即使其中一个NameNode挂了，也不会影响其他NameNode维护的Namespace的可用性。
-- 性能：文件系统吞吐量不受单个 Namenode 的限制。向集群添加更多 Namenode 可扩展文件系统读/写吞吐量。
-- 隔离性：单个 Namenode 在多用户环境中不提供隔离。例如，实验性应用程序可能会使 Namenode 过载并减慢生产关键应用程序的速度。通过使用多个 Namenode，可以将不同类别的应用程序和用户隔离到不同的命名空间。
+* 扩展性：NameNode内存使用和元数据量正相关。随着集群规模和业务的发展，即使经过小文件合并与数据压缩，仍然无法阻止内存会成为HDFS横向扩展的瓶颈。
+* 可用性：NameNode可以横向扩展，Namespace之间相互独立，即使其中一个NameNode挂了，也不会影响其他NameNode维护的Namespace的可用性。
+* 性能：文件系统吞吐量不受单个 Namenode 的限制。向集群添加更多 Namenode 可扩展文件系统读/写吞吐量。
+* 隔离性：单个 Namenode 在多用户环境中不提供隔离。例如，实验性应用程序可能会使 Namenode 过载并减慢生产关键应用程序的速度。通过使用多个 Namenode，可以将不同类别的应用程序和用户隔离到不同的命名空间。
 
-### Data Replication
+## Data Replication
 
 HDFS为了实现容错，所有数据块都会有副本，每个文件的数据块大小和副本数都是可配置的，副本数默认是3，应用程序可以指定某个文件的副本数。副本数可以在文件创建的时候指定，也可以在之后改变。副本如何存放是HDFS可靠性和性能的关键，副本存放策略是HDFS区分于其他大部分分布式文件系统的重要特性。HDFS采用一种称为机架感知(rack-aware)的策略来改进数据的可靠性、可用性和网络带宽的利用率。
 
-#### Rack Awareness & Data Replication Policies
+### Rack Awareness & Data Replication Policies
 
 大型HDFS实例一般运行在跨越多个机架的计算机组成的集群上，不同机架上的两台机器之间的通讯需要经过交换机。在大多数情况下，同一个机架内的两台机器间的带宽会比不同机架的两台机器间的带宽大。
 
@@ -137,7 +143,7 @@ HDFS为了实现容错，所有数据块都会有副本，每个文件的数据�
 
 HDFS一个优化的存放策略是将一个副本存放在本地机架的节点上，一个副本放在同一机架的另一个节点上，最后一个副本放在不同机架的节点上。这种策略减少了机架间的数据传输，这就提高了写操作的效率。机架的错误远远比节点的错误少，所以这个策略不会影响到数据的可靠性和可用性。于此同时，因为数据块只放在两个（不是三个）不同的机架上，所以此策略减少了读取数据时需要的网络传输总带宽。在这种策略下，副本并不是均匀分布在不同的机架上。三分之一的副本在一个节点上，三分之二的副本在一个机架上，其他副本均匀分布在剩下的机架中，这一策略在不损害数据可靠性和读取性能的情况下改进了写的性能。
 
-#### Replica Selection
+### Replica Selection
 
 为了降低整体的带宽消耗和读取延时，HDFS会尽量让读取程序读取离它最近的副本。
 
@@ -147,15 +153,15 @@ HDFS一个优化的存放策略是将一个副本存放在本地机架的节点�
 
 最近节点距离计算：两个节点到达最近的共同祖先的距离总和。
 
-#### Block Placement Policies
+### Block Placement Policies
 
 如上所述，当复制因子为3时，HDFS的放置策略是，如果写入者在数据节点上，则将一个副本放在本地机器上，否则在与写入者相同机架的随机数据节点上，另一个节点上的副本在不同的（远程）机架中，最后一个在同一远程机架中的不同节点上。如果复制因子大于 3，则随机确定第 4 个及以下副本的放置，同时保持每个机架的副本数量低于上限（基本上是 (replicas - 1) / racks + 2）。除此之外，HDFS 还支持 4 种不同的可插入块放置策略。用户可以根据他们的基础设施和用例选择策略。默认情况下，HDFS 支持 BlockPlacementPolicyDefault。
 
-#### Save Mode
+### Save Mode
 
 Namenode启动后会进入一个称为安全模式的特殊状态。处于安全模式的Namenode是不会进行数据块的复制的。Namenode从所有的 Datanode接收心跳信号和块状态报告。块状态报告包括了某个Datanode所有的数据块列表。每个数据块都有一个指定的最小副本数。当Namenode检测确认某个数据块的副本数目达到这个最小值，那么该数据块就会被认为是副本安全(safely replicated)的；在一定百分比（这个参数可配置）的数据块被Namenode检测确认是安全之后（加上一个额外的30秒等待时间），Namenode将退出安全模式状态。接下来它会确定还有哪些数据块的副本没有达到指定数目，并将这些数据块复制到其他Datanode上。
 
-### Data Streaming
+## Data Streaming
 
 本小节的重点主要是学习一下HDFS的读写流程，在此之前还是需要明白block, packet, chunk等概念
 
@@ -165,7 +171,7 @@ Namenode启动后会进入一个称为安全模式的特殊状态。处于安全
 
 在client端向DataNode传数据的时候，HDFSOutputStream会有一个chunk buff，写满一个chunk后，会计算校验和并写入当前的chunk。之后再把带有校验和的chunk写入packet，当一个packet写满后，packet会进入dataQueue队列，其他的DataNode就是从这个dataQueue获取client端上传的数据并存储的。同时一个DataNode成功存储一个packet后之后会返回一个ack packet，放入ack Queue中。
 
-#### Write
+### Write
 
 ![hdfs-write](./images/hdfs-write.jpeg)
 
@@ -196,7 +202,7 @@ NameNode已经知道文件由哪些块组成，所以它在返回成功前只需
 
 文件写文件的时候只有一个客户端能写，保证数据上传成功。
 
-#### Read
+### Read
 
 ![hdfs-read](./images/hdfs-read.png)
 
@@ -211,16 +217,16 @@ NameNode已经知道文件由哪些块组成，所以它在返回成功前只需
 1. DFSInputStream与DataNode通信时遇到错误，会尝试从这个块的另一个最近的DataNode读取数据，并且保证以后不会重复读取改DataNode上的后续块。
 2. DFSInputStream如果发生校验不通过或者从DataNode发来的数据不完整，有损坏的块，DFSInputStream会试图从其他DataNode读取其副本，也会将被损坏的块通知给NameNode。
 
-### NameNode & Secondary NameNode
+## NameNode & Secondary NameNode
 
-#### FsImage & Edits
+### FsImage & Edits
 
 在HDFS中，FsImage 和Edits是NameNode两个非常重要的文件。
 
 NameNode的存储目录树的信息，而目录树的信息则存放在FsImage 文件中，当NameNode启动的时候会首先读取整个FsImage文件，将信息装载到内存中。Edits文件存储日志信息，在NameNode上所有对目录的操作，增加，删除，修改等都会保存到Edits文件中，并不会同步到FsImage中，当NameNode关闭的时候，也不会将FsImage 和Edits进行合并。
 所以当NameNode启动的时候，首先装载FsImage文件，然后按照Edits中的记录执行一遍所有记录的操作，最后把信息的目录树写入FsImage中，并删掉Edits文件，重新启用新的Edits文件。
 
-#### Secondary NameNode
+### Secondary NameNode
 
 没有NameNode，文件系统将无法使用，如果运行NameNode服务的机器毁坏，文件系统上所有的文件将会丢失，所以NameNode的容错就会非常重要。
 
@@ -247,7 +253,7 @@ NameNode的存储目录树的信息，而目录树的信息则存放在FsImage �
     （7）拷贝fsimage.chkpoint到NameNode。
     （8）NameNode将fsimage.chkpoint重新命名成fsimage。
 
-#### Checkpoint
+### Checkpoint
 
 （1）通常情况下，SecondaryNameNode每隔一小时执行一次。
  [hdfs-default.xml]
@@ -275,7 +281,7 @@ NameNode的存储目录树的信息，而目录树的信息则存放在FsImage �
 </property >
 ```
 
-#### NameNode Failover
+### NameNode Failover
 
 Namenode故障后，可以采用如下两种方法恢复数据。
 
@@ -307,16 +313,16 @@ Namenode故障后，可以采用如下两种方法恢复数据。
 
    * 如果 SecondaryNameNode不和NameNode在一个主机节点上，需要将SecondaryNameNode存储数据的目录拷贝到NameNode存储数据的平级目录，并删除in_use.lock文件
 
-   * 执行`bin/hdfs namenode -importCheckpoint `导入检查点数据
+   * 执行`bin/hdfs namenode -importCheckpoint`导入检查点数据
 
    * 执行`sbin/hadoop-daemon.sh start namenode`，启动NameNode
 
-#### Safe Mode
+### Safe Mode
 
 **概述：**
 
 安全模式是hadoop的一种保护机制，用于保证集群中的数据块的安全性。
-　
+
 Namenode启动时，首先将映像文件（fsimage）载入内存，并执行编辑日志（edits）中的各项操作。一旦在内存中成功建立文件系统元数据的映像，则创建一个新的fsimage文件和一个空的编辑日志。此时，namenode开始监听datanode请求。但是此刻，namenode运行在安全模式，即namenode的文件系统对于客户端来说是只读的。
 
 系统中的数据块的位置并不是由namenode维护的，而是以块列表的形式存储在datanode中。在系统的正常操作期间，namenode会在内存中保留所有块位置的映射信息。在安全模式下，各个datanode会向namenode发送最新的块列表信息，namenode了解到足够多的块位置信息之后，即可高效运行文件系统。
@@ -332,9 +338,9 @@ Namenode启动时，首先将映像文件（fsimage）载入内存，并执行�
 3. `bin/hdfs dfsadmin -safemode leave`    （功能描述：离开安全模式状态）
 4. `bin/hdfs dfsadmin -safemode wait` （功能描述：等待安全模式状态）
 
-### NameNode  HA With QJM
+## NameNode HA With QJM
 
-#### Architecture
+### NameNode HA Architecture
 
 NameNode 保存了整个 HDFS 的元数据信息，一旦 NameNode 挂掉，整个 HDFS 就无法访问。为了提高HDFS的高可用性，在 Hadoop2.0 中，HDFS NameNode支持了高可用架构。
 
@@ -356,14 +362,14 @@ Zookeeper 集群：为主备切换控制器提供主备选举支持。
 
 DataNode 节点：除了通过共享存储系统共享 HDFS 的元数据信息之外，主 NameNode 和备 NameNode 还需要共享 HDFS 的数据块和 DataNode 之间的映射关系。DataNode 会同时向主 NameNode 和备 NameNode 上报数据块的位置信息。
 
-#### Automatic Failover
+### Automatic Failover
 
 1. 故障检测：集群中的每台 NameNode 机器都在 ZooKeeper 中维护一个持久会话。 如果机器崩溃，ZooKeeper 会话将过期，通知其他 NameNode 应该触发故障转移。
 2. 选出Active NameNode：ZooKeeper 提供了一种简单的机制来专门选择一个NameNode为Active NameNode。 如果当前活动的 NameNode 崩溃，另一个节点可能会在 ZooKeeper 中获得一个特殊的排他锁，表明它应该成为下一个活动的。
 
-### DataNode
+## DataNode
 
-**DataNode工作机制**
+### DataNode工作机制
 
 ![DataNode-work](./images/DataNode-work.png)
 
@@ -375,7 +381,7 @@ DataNode 节点：除了通过共享存储系统共享 HDFS 的元数据信息�
 
 4. 集群运行中可以安全加入和退出一些机器。
 
-**数据完整性**
+### 数据完整性
 
 ![data-complete](./images/Data-Complete.png)
 
@@ -387,13 +393,13 @@ DataNode 节点：除了通过共享存储系统共享 HDFS 的元数据信息�
 4. 常见的校验算法 crc（32），md5（128），sha1（160）
 5. DataNode在其文件创建后周期验证CheckSum。
 
-### Shell
+## Shell
 
 https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/FileSystemShell.html
 
 https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html#dfsadmin
 
-### Java API
+## Java API
 
 ```java
 import org.apache.hadoop.conf.Configuration;
@@ -652,7 +658,7 @@ public class HdfsTest {
 
 ```
 
-### Related Documentation
+## Related Documentation
 
 [Hadoop权威指南-第三章](https://book.douban.com/subject/26359169/)
 
