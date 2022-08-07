@@ -6,16 +6,14 @@ import java.util.Properties;
 
 public class PropertiesConfigSource extends MapConfigSource {
 
-  private static final String NAME = "PropertiesConfigSource";
+  private static final String NAME = "properties.config";
 
   public PropertiesConfigSource(Properties properties) {
-    super(
-        NAME,
-        ConfigSourceUtils.toMap(properties),
-        ConfigSourceOrdinal.PROPERTIES_ORDINAL.getOrdinal());
+    this(ConfigSourceUtils.toMap(properties));
   }
 
   public PropertiesConfigSource(Map<String, String> config) {
-    super(NAME, config, ConfigSourceOrdinal.PROPERTIES_ORDINAL.getOrdinal());
+    super(NAME, ConfigSourceOrdinal.PROPERTIES_ORDINAL.getOrdinal());
+    prepareConfig(config);
   }
 }

@@ -2,14 +2,15 @@ package com.shawn.study.deep.in.java.configuration.source;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections.MapUtils;
 
 public class MapConfigSource extends BasedConfigSource {
 
-  private final Map<String, String> config;
+  private Map<String, String> config;
 
-  public MapConfigSource(String name, Map<String, String> config, Integer ordinal) {
+  public MapConfigSource(String name, Integer ordinal) {
     super(name, ordinal);
-    this.config = config;
   }
 
   @Override
@@ -18,7 +19,19 @@ public class MapConfigSource extends BasedConfigSource {
   }
 
   @Override
+  public Set<String> getPropertyNames() {
+    if (MapUtils.isEmpty(config)) {
+      return null;
+    }
+    return config.keySet();
+  }
+
+  @Override
   public String getValue(String propertyName) {
     return config.get(propertyName);
+  }
+
+  void prepareConfig(Map<String, String> config) {
+    this.config = config;
   }
 }

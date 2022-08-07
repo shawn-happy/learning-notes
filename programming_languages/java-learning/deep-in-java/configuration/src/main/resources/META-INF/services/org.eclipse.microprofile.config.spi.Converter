@@ -1,0 +1,10 @@
+com.shawn.study.deep.in.java.configuration.converter.ByteConverter
+com.shawn.study.deep.in.java.configuration.converter.ShortConverter
+com.shawn.study.deep.in.java.configuration.converter.IntegerConverter
+com.shawn.study.deep.in.java.configuration.converter.LongConverter
+com.shawn.study.deep.in.java.configuration.converter.FloatConverter
+com.shawn.study.deep.in.java.configuration.converter.DoubleConverter
+com.shawn.study.deep.in.java.configuration.converter.BigIntegerConverter
+com.shawn.study.deep.in.java.configuration.converter.BigDecimalConverter
+com.shawn.study.deep.in.java.configuration.converter.BooleanConverter
+#com.shawn.study.deep.in.java.configuration.converter.StringConverter

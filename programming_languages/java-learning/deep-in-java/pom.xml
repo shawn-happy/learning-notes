@@ -48,6 +48,7 @@
     <junit.version>4.13</junit.version>
     <log4j.version>2.17.2</log4j.version>
     <common.lang.version>2.6</common.lang.version>
+    <common.io.version>2.6</common.io.version>
     <common.collections.version>3.2.2</common.collections.version>
 
     <!--  java-web -->
@@ -71,7 +72,7 @@
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
 
     <!-- microprofile -->
-    <microprofile.config.version>1.4</microprofile.config.version>
+    <microprofile.config.version>3.0</microprofile.config.version>
   </properties>
 
   <dependencies>
@@ -144,6 +145,11 @@
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>${common.collections.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${common.io.version}</version>
       </dependency>
 
       <!-- jackson -->

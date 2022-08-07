@@ -6,12 +6,10 @@ import java.util.Map;
 
 public class MemoryConfigSource extends MapConfigSource {
 
-  public static final String NAME = "MemoryConfigSource";
-
-  private final Map<String, String> config;
+  public static final String NAME = "java.memory.config";
 
   public MemoryConfigSource(Map<String, String> config) {
-    super(NAME, config, MEMORY_ORDINAL.getOrdinal());
-    this.config = config;
+    super(NAME, MEMORY_ORDINAL.getOrdinal());
+    prepareConfig(config);
   }
 }

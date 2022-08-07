@@ -8,7 +8,7 @@ import java.util.Set;
 public class JavaSystemPropertiesConfigSource extends MapConfigSource {
 
   private static final Map<String, String> JAVA_SYSTEM_PROPERTIES = new HashMap<>();
-  private static final String CONFIG_SOURCE_NAME = "java_system_properties";
+  private static final String CONFIG_SOURCE_NAME = "java.system.properties";
 
   static {
     Properties properties = System.getProperties();
@@ -17,9 +17,7 @@ public class JavaSystemPropertiesConfigSource extends MapConfigSource {
   }
 
   public JavaSystemPropertiesConfigSource() {
-    super(
-        CONFIG_SOURCE_NAME,
-        JAVA_SYSTEM_PROPERTIES,
-        ConfigSourceOrdinal.JAVA_SYSTEM_PROPERTIES_ORDINAL.getOrdinal());
+    super(CONFIG_SOURCE_NAME, ConfigSourceOrdinal.JAVA_SYSTEM_PROPERTIES_ORDINAL.getOrdinal());
+    super.prepareConfig(JAVA_SYSTEM_PROPERTIES);
   }
 }

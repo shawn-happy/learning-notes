@@ -35,10 +35,20 @@
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>com.shawn.study.deep.in.java</groupId>
       <artifactId>java-beans</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.shawn.study.deep.in.java</groupId>
+      <artifactId>commons</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

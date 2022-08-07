@@ -9,9 +9,7 @@ public class ServletConfigConfigSource extends MapConfigSource {
   private static final String SERVLET_CONFIG_NAME = "servlet.config";
 
   public ServletConfigConfigSource(ServletConfig servletConfig) {
-    super(
-        SERVLET_CONFIG_NAME,
-        toMap(servletConfig),
-        ConfigSourceOrdinal.SERVLET_CONFIG_ORDINAL.getOrdinal());
+    super(SERVLET_CONFIG_NAME, ConfigSourceOrdinal.SERVLET_CONFIG_ORDINAL.getOrdinal());
+    prepareConfig(toMap(servletConfig));
   }
 }
