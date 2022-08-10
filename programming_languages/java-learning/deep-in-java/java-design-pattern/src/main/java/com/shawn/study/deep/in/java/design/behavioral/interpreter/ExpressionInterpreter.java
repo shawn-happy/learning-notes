@@ -43,7 +43,7 @@ public class ExpressionInterpreter {
       long result = combinedExp.interpret();
       numbers.addFirst(new NumberExpression(result));
     }
-    if(numbers.size() != 1){
+    if (numbers.size() != 1) {
       throw new RuntimeException("Expression is invalid: " + expression);
     }
     return numbers.pop().interpret();

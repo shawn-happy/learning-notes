@@ -31,5 +31,4 @@ public class ItemIterator<Item> implements Iterator<Item> {
     cursor++;
     return item;
   }
-
 }

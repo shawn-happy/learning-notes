@@ -7,5 +7,4 @@ public interface UnitVisitor {
   void visitSergeant(Sergeant sergeant);
 
   void visitCommander(Commander commander);
-
 }

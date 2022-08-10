@@ -28,5 +28,4 @@ public class TestMain {
     rogue.act(Action.GOLD);
     hunter.act(Action.HUNT);
   }
-
 }

@@ -6,15 +6,15 @@ package com.shawn.study.deep.in.java.design.oop;
  */
 public interface List<E> {
 
-	void add(E e);
+  void add(E e);
 
-	void add(int index, E e);
+  void add(int index, E e);
 
-	void ensureCapacity();
+  void ensureCapacity();
 
-	E get(int index);
+  E get(int index);
 
-	int size();
+  int size();
 
-	int capacity();
+  int capacity();
 }

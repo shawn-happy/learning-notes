@@ -1,5 +1,0 @@
-com.shawn.study.java.configuration.source.JavaSystemPropertiesConfigSource
-com.shawn.study.java.configuration.source.ClasspathPropertiesConfigSource
-com.shawn.study.java.configuration.source.InMemoryConfigSource
-com.shawn.study.java.configuration.source.ClasspathXmlConfigSource
-com.shawn.study.java.configuration.source.ClasspathYamlConfigSource

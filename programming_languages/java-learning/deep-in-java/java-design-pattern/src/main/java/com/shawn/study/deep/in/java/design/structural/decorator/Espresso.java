@@ -5,9 +5,9 @@ package com.shawn.study.deep.in.java.design.structural.decorator;
  * @description:
  * @since 2020/7/28
  */
-public class Espresso extends Beverage{
+public class Espresso extends Beverage {
 
-  public Espresso(){
+  public Espresso() {
     description = "Espresso";
   }
 

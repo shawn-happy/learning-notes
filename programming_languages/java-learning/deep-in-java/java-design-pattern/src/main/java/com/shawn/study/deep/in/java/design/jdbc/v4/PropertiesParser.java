@@ -12,7 +12,7 @@ public class PropertiesParser implements Parser {
 
   private static final String propertiesName = "jdbc.properties";
 
-  public PropertiesParser(){
+  public PropertiesParser() {
     super();
   }
 
@@ -48,16 +48,15 @@ public class PropertiesParser implements Parser {
             "jdbc.initSize",
             DataSourceConstant.DEFAULT_INIT_SIZE,
             "illegal property 'jdbc.initSize'");
-    return
-        DataSourcePoolConfig.builder()
-            .url(url)
-            .username(username)
-            .password(password)
-            .driverClassName(driverClassName)
-            .maxActive(maxActive)
-            .minIdle(minIdle)
-            .initSize(initSize)
-            .build();
+    return DataSourcePoolConfig.builder()
+        .url(url)
+        .username(username)
+        .password(password)
+        .driverClassName(driverClassName)
+        .maxActive(maxActive)
+        .minIdle(minIdle)
+        .initSize(initSize)
+        .build();
   }
 
   private int parseInt(Properties p, String key, int defaultValue, String errorMsg) {

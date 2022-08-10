@@ -1,7 +1,7 @@
 package com.shawn.study.deep.in.java.design.structural.composite;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shawn

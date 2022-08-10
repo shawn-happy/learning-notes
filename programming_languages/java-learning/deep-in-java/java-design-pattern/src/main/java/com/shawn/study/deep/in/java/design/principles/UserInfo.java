@@ -9,32 +9,23 @@ import java.util.Date;
  */
 public class UserInfo {
 
-	private int id;
-	private String username;
-	private String realname;
-	private String password;
-	private String email;
-	private String phone;
-	private Date createTime;
-	private Date updateTime;
-	/**
-	 * 省
-	 */
-	private String provinceOfAddress;
+  private int id;
+  private String username;
+  private String realname;
+  private String password;
+  private String email;
+  private String phone;
+  private Date createTime;
+  private Date updateTime;
+  /** 省 */
+  private String provinceOfAddress;
 
-	/**
-	 * 市
-	 */
-	private String cityOfAddress;
+  /** 市 */
+  private String cityOfAddress;
 
-	/**
-	 * 区
-	 */
-	private String regionOfAddress;
+  /** 区 */
+  private String regionOfAddress;
 
-	/**
-	 * 详细地址
-	 */
-	private String detailOfAddress;
-
+  /** 详细地址 */
+  private String detailOfAddress;
 }

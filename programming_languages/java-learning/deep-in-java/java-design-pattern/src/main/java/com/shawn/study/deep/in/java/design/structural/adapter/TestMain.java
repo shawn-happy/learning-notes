@@ -11,5 +11,4 @@ public class TestMain {
     Captain captain = new Captain(new FishingBoatAdapter());
     captain.row();
   }
-
 }

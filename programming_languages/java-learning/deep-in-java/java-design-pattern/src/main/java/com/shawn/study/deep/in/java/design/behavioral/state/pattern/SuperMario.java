@@ -6,7 +6,7 @@ import com.shawn.study.deep.in.java.design.behavioral.state.StateEnum;
  * @author shawn
  * @since 2020/8/8
  */
-public class SuperMario implements IMario{
+public class SuperMario implements IMario {
 
   private MarioStateMachine marioStateMachine;
 
@@ -20,9 +20,7 @@ public class SuperMario implements IMario{
   }
 
   @Override
-  public void obtainMushRoom() {
-
-  }
+  public void obtainMushRoom() {}
 
   @Override
   public void obtainCape() {

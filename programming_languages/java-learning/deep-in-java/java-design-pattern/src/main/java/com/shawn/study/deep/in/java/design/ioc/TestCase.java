@@ -7,14 +7,13 @@ package com.shawn.study.deep.in.java.design.ioc;
  */
 public abstract class TestCase {
 
-	public void run(){
-		if(test()){
-			System.out.println("Test succeed.");
-		} else {
-			System.out.println("Test failed.");
-		}
-	}
+  public void run() {
+    if (test()) {
+      System.out.println("Test succeed.");
+    } else {
+      System.out.println("Test failed.");
+    }
+  }
 
-	public abstract boolean test();
-
+  public abstract boolean test();
 }

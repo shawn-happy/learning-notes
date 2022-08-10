@@ -1,8 +1,8 @@
 package com.shawn.study.deep.in.java.design.behavioral.state.table;
 
-import com.shawn.study.deep.in.java.design.behavioral.state.StateEnum;
-
 import static com.shawn.study.deep.in.java.design.behavioral.state.StateEnum.*;
+
+import com.shawn.study.deep.in.java.design.behavioral.state.StateEnum;
 
 /**
  * @author shawn

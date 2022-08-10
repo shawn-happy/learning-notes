@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 /**
  * v1 jdbc operator class
+ *
  * @author shawn
  * @since 2020/8/14
  */

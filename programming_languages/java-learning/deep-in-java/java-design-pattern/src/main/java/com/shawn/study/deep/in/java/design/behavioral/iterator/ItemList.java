@@ -1,6 +1,5 @@
 package com.shawn.study.deep.in.java.design.behavioral.iterator;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,17 +11,16 @@ public class ItemList {
 
   private List<Item> itemList;
 
-  public ItemList(){
+  public ItemList() {
     itemList = new ArrayList<>();
   }
 
-  public ItemList add(Item item){
+  public ItemList add(Item item) {
     itemList.add(item);
     return this;
   }
 
-  public Iterator<Item> iterator(){
+  public Iterator<Item> iterator() {
     return new ItemIterator<>(itemList);
   }
-
 }

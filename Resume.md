@@ -34,8 +34,7 @@
 
 ## 工作经历
 ### 慧博云通科技有限公司 |  2020.6 - 至今
-- 负责HyperCycle ML(AI机器学习中台)的开发。
-- 负责HyperCycle RL(AI强化学习中台)的开发。
+- 负责HyperCycle ML/RL(AI中台)的开发。
 - 负责HyperCycle Decision(策略中台)的开发。
 - 负责HyperCycle Data(数据中台)的开发。
 
@@ -67,15 +66,16 @@
 
 * **项目描述**：智能决策平台是一个聚焦解决金融领域高频，复杂，多变业务场景下决策问题的综合性策略中台。平台致力于将精简规则和领先AI技术相结合，构建业务人员易上手的闭环策略管理体系，帮助企业实现业务流程中的智能决策，助力提升决策水平，有序的帮助企业进行智能升级。
 * **职责描述**：
-  * 使用ArangoDB完成社会网络的开发。
-  * 使用Argo Workflow完成批量场景的决策流发布。
+  * 使用ArangoDB实现社会网络。
+  * 使用Argo Workflow实现批量场景的决策流发布以及状态管理。
   * 对接HyperCycle ML。
 
 ### HyperCycle Data 2022.06-至今
 
 * **项目描述**：将不同系统的数据相互打通，实现数据自由离线或实时流动， 并提供丰富的异构数据源之间高速稳定的数据移动能力，具备数据集成，数据开发，数据质量，数据治理等模块功能。
 * **职责描述**：
-  * 基于Spark和Argo Workflow实现调度层的开发和算子定义
+  * 基于Argo Workflow实现调度层
+  * 基于Spark实现部分Spark算子的开发
   * 使用Kubernetes Informer机制，监控Kubernetes Pod的运行状态和日志收集。
 
 ### DataExchange Platform 2017.06-2020.06
@@ -87,7 +87,7 @@
   * 负责实现Kettle job模板的开发，主要支持全量推送，触发器增量推送，时间戳增量推送等。
   * 负责CDC的实现，主要通过Alibaba Canal监控MySQL BinLog日志，日志内容写入Kafka，并使用FLink实时同步到MongoDB/Hbase里。
 
-### 开源项目：2021.07 - 至今
+### 开源项目：2021.07 - 2021.08
 
 #### OpenMLDB
 

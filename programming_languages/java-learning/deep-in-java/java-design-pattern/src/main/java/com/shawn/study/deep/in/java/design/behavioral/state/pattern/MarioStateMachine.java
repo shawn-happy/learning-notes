@@ -74,5 +74,4 @@ public class MarioStateMachine {
     System.out.printf(
         "obtain cape mario score: %d, state: %s\n", machine.getScore(), machine.getCurrentState());
   }
-
 }

@@ -2,22 +2,19 @@ package com.shawn.study.deep.in.java.design.create.singleton;
 
 /**
  * Static inner class
+ *
  * @author com.shawn
  */
 public class StaticInnerClass {
 
-	private StaticInnerClass(){
+  private StaticInnerClass() {}
 
-	}
+  public static StaticInnerClass getInstance() {
+    return InnerClass.INTANCE;
+  }
 
-	public static StaticInnerClass getInstance(){
-		return InnerClass.INTANCE;
-	}
+  private static class InnerClass {
 
-	private static class InnerClass{
-
-		private static final StaticInnerClass INTANCE = new StaticInnerClass();
-
-	}
-
+    private static final StaticInnerClass INTANCE = new StaticInnerClass();
+  }
 }

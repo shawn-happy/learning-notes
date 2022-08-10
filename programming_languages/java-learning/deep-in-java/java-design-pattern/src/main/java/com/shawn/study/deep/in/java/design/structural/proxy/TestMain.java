@@ -7,12 +7,13 @@ package com.shawn.study.deep.in.java.design.structural.proxy;
  */
 public class TestMain {
 
-  public static void main(String[] args) throws Exception{
+  public static void main(String[] args) throws Exception {
     UserService service = new UserServiceProxy();
     service.getUserInfoById(1L);
 
     DynamicUserServiceProxy dynamicUserServiceProxy = new DynamicUserServiceProxy();
-    UserService userService = (UserService) dynamicUserServiceProxy.createProxy(new UserServiceImpl());
+    UserService userService =
+        (UserService) dynamicUserServiceProxy.createProxy(new UserServiceImpl());
     userService.getUserInfoById(2);
   }
 }

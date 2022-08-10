@@ -5,8 +5,8 @@ import com.shawn.study.deep.in.java.design.create.factory.simple.Shape;
 
 public class RectangleFactory implements ShapeFactory {
 
-	@Override
-	public Shape createShape() {
-		return new Rectangle();
-	}
+  @Override
+  public Shape createShape() {
+    return new Rectangle();
+  }
 }

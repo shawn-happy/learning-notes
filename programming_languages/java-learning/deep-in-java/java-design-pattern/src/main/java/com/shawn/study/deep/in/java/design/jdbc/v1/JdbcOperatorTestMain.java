@@ -2,9 +2,9 @@ package com.shawn.study.deep.in.java.design.jdbc.v1;
 
 import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.delete;
 import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.printMsg;
-import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.save;
 import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.queryAllCoffees;
 import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.queryCoffeeById;
+import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.save;
 import static com.shawn.study.deep.in.java.design.jdbc.v1.JdbcOperator.update;
 
 import com.shawn.study.deep.in.java.design.jdbc.entity.Coffee;

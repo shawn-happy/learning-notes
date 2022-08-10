@@ -1,8 +1,6 @@
 package com.shawn.study.deep.in.java.design.jdbc.v4;
 
-/**
- * Constant class
- */
+/** Constant class */
 public interface DataSourceConstant {
   /** 默认最大连接数 */
   int DEFAULT_MAX_CONNECTION = 100;

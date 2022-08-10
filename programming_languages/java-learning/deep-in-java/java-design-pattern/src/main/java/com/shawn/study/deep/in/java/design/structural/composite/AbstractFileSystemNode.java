@@ -9,7 +9,7 @@ public abstract class AbstractFileSystemNode {
 
   protected String path;
 
-  public AbstractFileSystemNode(String path){
+  public AbstractFileSystemNode(String path) {
     this.path = path;
   }
 
@@ -18,6 +18,6 @@ public abstract class AbstractFileSystemNode {
   }
 
   public abstract int countNumOfFiles();
-  public abstract long countSizeOfFiles();
 
+  public abstract long countSizeOfFiles();
 }
