@@ -1,4 +1,4 @@
-package com.shawn.study.deep.in.java.rest.jax.rs;
+package com.shawn.study.deep.in.java.rest.jax.rs.server;
 
 import java.net.URI;
 import java.util.logging.Level;

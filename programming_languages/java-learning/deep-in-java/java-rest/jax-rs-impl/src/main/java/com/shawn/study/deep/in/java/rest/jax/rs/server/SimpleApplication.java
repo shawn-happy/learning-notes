@@ -1,4 +1,4 @@
-package com.shawn.study.deep.in.java.rest.jax.rs;
+package com.shawn.study.deep.in.java.rest.jax.rs.server;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
