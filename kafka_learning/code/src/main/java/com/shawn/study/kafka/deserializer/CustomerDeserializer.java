@@ -1,7 +1,6 @@
-package com.shawn.study.kafka.consumer;
+package com.shawn.study.kafka.deserializer;
 
-import com.shawn.study.kafka.produce.Customer;
-import java.io.UnsupportedEncodingException;
+import com.shawn.study.kafka.domain.Customer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

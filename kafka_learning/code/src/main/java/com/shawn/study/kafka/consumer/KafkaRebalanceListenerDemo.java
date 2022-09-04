@@ -36,12 +36,16 @@ public class KafkaRebalanceListenerDemo {
         Collections.singletonList("simple_demo"),
         new ConsumerRebalanceListener() {
           @Override
-          public void onPartitionsRevoked(Collection<TopicPartition> partitions) {}
+          public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+            System.out.println(
+                "Lost partitions in rebalance. Committing current offsets:" + offsets);
+            kafkaConsumer.commitSync(offsets);
+          }
 
           @Override
           public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
             System.out.println(
-                "lost partitions in rebalance.committing current offsets: " + offsets);
+                "lost partitions in rebalance. committing current offsets: " + offsets);
             kafkaConsumer.commitSync(offsets);
           }
         });

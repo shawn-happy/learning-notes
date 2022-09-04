@@ -1,5 +1,6 @@
-package com.shawn.study.kafka.produce;
+package com.shawn.study.kafka.serializer;
 
+import com.shawn.study.kafka.domain.Customer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import org.apache.kafka.common.serialization.Serializer;

@@ -1,4 +1,4 @@
-package com.shawn.study.kafka.produce;
+package com.shawn.study.kafka.domain;
 
 public class Customer {
 
