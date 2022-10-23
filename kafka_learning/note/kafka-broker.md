@@ -1,8 +1,10 @@
 ## kafka broker
 ### zk存储的kafka信息
-1. /brokers/ids/[]: 记录有哪些broker。
-2. /brokers/topics/[topic_name]/partitions/[]:
-3. /controller:
+1. `/brokers/ids/[]`: 记录有哪些broker。
+2. `/brokers/topics/[topic_name]/partitions/[]`:记录谁是leader，有哪些服务器可用
+3. `/controller`:辅助选举Leader
+
+
 
 ### kafka broker工作流程
 1. broker启动后在zk中注册，但是如果zk中已经存在相同的broker id，启动会报错。
@@ -24,7 +26,7 @@ epoch来避免脑裂问题。
 Replication的好处？
 1. **提供数据冗余。**即使系统部分组件失效，系统依然能够继续运转，因而增加了整体可用性以及数据持久性。
 2. **提供高伸缩性。**支持横向扩展，能够通过增加机器的方式来提升性能，进而提高读操作吞吐量。
-3. **改善数据句不行。**允许将数据放入与用户地理位置相近的地方，从而降低系统延时。
+3. **改善数据局部性。**允许将数据放入与用户地理位置相近的地方，从而降低系统延时。
 kafka replication只能享受到副本机制带来的第1个好处，也就是提供数据冗余实现高可用性和高持久性。topic -> partition -> replication。副本的本质就是一个只能追加写消息的提交日志，这些副本分散保存在不同的broker上，从而能够对抗部分broker宕机带来的数据不可用。
 ![kafka-replication](./images/kafka-replication.png)
 

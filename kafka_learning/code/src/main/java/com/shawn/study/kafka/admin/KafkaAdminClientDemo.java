@@ -30,7 +30,7 @@ public class KafkaAdminClientDemo {
 
   private static final Map<String, Object> CONF = new HashMap<>();
   private static final String TEST_TOPIC = "kafka_demo";
-  private static final int DEFAULT_PARTITION_NUM = 1;
+  private static final int DEFAULT_PARTITION_NUM = 2;
   private static final short DEFAULT_REPLICATION_NUM = 1;
 
   private static AdminClient adminClient;
@@ -38,7 +38,7 @@ public class KafkaAdminClientDemo {
   @BeforeClass
   public static void createAdminClient() {
     try {
-      CONF.put(BOOTSTRAP_SERVERS_CONFIG, "localhost:9097");
+      CONF.put(BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
       CONF.put(REQUEST_TIMEOUT_MS_CONFIG, 120000);
       CONF.put("zookeeper.connect", "localhost:21891");
       adminClient = AdminClient.create(CONF);

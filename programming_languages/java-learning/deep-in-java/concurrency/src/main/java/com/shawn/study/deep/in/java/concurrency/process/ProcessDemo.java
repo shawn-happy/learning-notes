@@ -58,6 +58,8 @@ public class ProcessDemo {
     String name = operatingSystemMXBean.getName();
     if (name.startsWith("Mac")) {
       Process exec = Runtime.getRuntime().exec("open -a /System/Applications/Calculator.app");
+      long pid = exec.pid();
+      System.out.printf("当前JVM子进程ID: [%d]\n", pid);
     }
   }
 }
