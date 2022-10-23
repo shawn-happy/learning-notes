@@ -1,0 +1,23 @@
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/shiro?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 16
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart.max-file-size: 16MB
+    multipart.max-request-size: 16MB
