@@ -6,6 +6,7 @@ target/
 build/
 out/
 .gradle/
+gradle
 !gradle/wrapper/gradle-wrapper.jar
 
 ### IntelliJ IDEA ###

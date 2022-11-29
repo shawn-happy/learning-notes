@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+## 这里也可以使用 RoleBinding
+kind: ClusterRoleBinding
+metadata:
+  name: spark-operator-role-binding
+  labels:
+    from: my-release-spark-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: spark-operator-viewer-role
+subjects:
+- kind: ServiceAccount
+  name: my-release-spark-operator
+  namespace: spark-operator
+
