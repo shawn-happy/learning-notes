@@ -9,7 +9,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class EnableAsyncDemo {
 
   public static void main(String[] args) {
-    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+    AnnotationConfigApplicationContext applicationContext =
+        new AnnotationConfigApplicationContext();
     applicationContext.register(EnableAsyncDemo.class);
     applicationContext.refresh();
 
@@ -24,20 +25,20 @@ public class EnableAsyncDemo {
   }
 
   @Async
-  public void async(){
-    try{
+  public void async() {
+    try {
       TimeUnit.SECONDS.sleep(1);
       System.out.println(">>>>>>>>>>>>>>>>>>>");
       TimeUnit.SECONDS.sleep(1);
       System.out.println("===================");
       TimeUnit.SECONDS.sleep(1);
       System.out.println("<<<<<<<<<<<<<<<<<<<");
-    }catch (Exception e){
+    } catch (Exception e) {
 
     }
   }
 
-  public void sync(){
+  public void sync() {
     System.out.println("sync1");
     System.out.println("sync2");
     async();
