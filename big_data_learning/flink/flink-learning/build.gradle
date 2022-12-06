@@ -9,7 +9,31 @@ repositories {
     mavenCentral()
 }
 
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+ext{
+    flinkVersion = '1.16.0'
+    flinkOperatorVersion = '1.2.0'
+    flinkJacksonVersion = '2.13.4-16.0'
+
+    libs_flinkClients = [group: 'org.apache.flink', name: 'flink-clients', version: flinkVersion]
+    libs_flinkJava = [group: 'org.apache.flink', name: 'flink-java', version: flinkVersion]
+    libs_flinkStreamingJava = [group: 'org.apache.flink', name: 'flink-streaming-java', version: flinkVersion]
+//    libs_flinkConnKafka = [group: 'org.apache.flink', name: 'flink-connector-kafka', version: flinkVersion]
+//    libs_flinkConnBase = [group: 'org.apache.flink', name: 'flink-connector-base', version: flinkVersion]
+//    libs_flinkCep = [group: 'org.apache.flink', name: 'flink-cep', version: flinkVersion]
+//    libs_flinkJson = [group: 'org.apache.flink', name: 'flink-json', version: flinkVersion]
+//    libs_flinkOperator = [group: 'org.apache.flink', name: 'flink-kubernetes-operator', version: flinkOperatorVersion]
+//    libs_flinkTestUtils = [group: 'org.apache.flink', name: 'flink-test-utils', version: flinkVersion]
+//    libs_flinkShadedJackson = [group: 'org.apache.flink', name: 'flink-shaded-jackson', version: flinkJacksonVersion]
+}
+
 dependencies {
+    implementation libs_flinkClients
+    implementation libs_flinkJava
+    implementation libs_flinkStreamingJava
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
