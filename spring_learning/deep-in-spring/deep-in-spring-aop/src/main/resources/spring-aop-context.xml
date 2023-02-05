@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        https://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+  <aop:aspectj-autoproxy/>
+
+  <bean id="echoService" class="com.shawn.study.deep.in.spring.aop.service.DefaultEchoService"/>
+  <bean id="simpleAspect" class="com.shawn.study.deep.in.spring.aop.features.aspect.SimpleAspect"/>
+  <bean id="aspectXmlConfig"
+    class="com.shawn.study.deep.in.spring.aop.features.config.AspectXmlConfiguration"/>
+
+  <bean id="echoServiceMethodInterceptor"
+    class="com.shawn.study.deep.in.spring.aop.features.interceptor.EchoServiceMethodInterceptor"/>
+
+  <bean id="echoServiceProxyFactoryBean" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="targetName" value="echoService"/>
+    <property name="interceptorNames" value="echoServiceMethodInterceptor"/>
+  </bean>
+
+  <aop:config>
+    <aop:aspect id="aspects" ref="simpleAspect">
+      <aop:pointcut id="pointCutAfterReturning"
+        expression="execution(* com.shawn.study.deep.in.spring.aop.service.DefaultEchoService+.echo(..))"/>
+      <aop:after-returning method="afterReturn"
+        returning="returnValue" pointcut-ref="pointCutAfterReturning"/>
+    </aop:aspect>
+  </aop:config>
+
+  <aop:config>
+    <aop:aspect id="AspectXmlConfig" ref="aspectXmlConfig">
+      <aop:pointcut id="anyPublicMethod" expression="execution(public * *(..))"/>
+      <aop:around method="around" pointcut-ref="anyPublicMethod"/>
+    </aop:aspect>
+  </aop:config>
+
+
+</beans>

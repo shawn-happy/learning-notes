@@ -11,4 +11,9 @@ public class DefaultEchoService implements EchoService {
     }
     return String.format("ECHO: [%s]", msg);
   }
+
+  @Override
+  public String display(String msg) {
+    return String.format("display: [%s]", msg);
+  }
 }

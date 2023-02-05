@@ -1,8 +1,8 @@
 package com.shawn.study.deep.in.spring.aop.overview;
 
-import com.shawn.study.deep.in.spring.aop.interceptor.AfterReturnInterceptor;
-import com.shawn.study.deep.in.spring.aop.interceptor.BeforeInterceptor;
-import com.shawn.study.deep.in.spring.aop.interceptor.ThrowableInterceptor;
+import com.shawn.study.deep.in.spring.aop.overview.interceptor.AfterReturnInterceptor;
+import com.shawn.study.deep.in.spring.aop.overview.interceptor.BeforeInterceptor;
+import com.shawn.study.deep.in.spring.aop.overview.interceptor.ThrowableInterceptor;
 import com.shawn.study.deep.in.spring.aop.service.DefaultEchoService;
 import com.shawn.study.deep.in.spring.aop.service.EchoService;
 import java.lang.reflect.Proxy;

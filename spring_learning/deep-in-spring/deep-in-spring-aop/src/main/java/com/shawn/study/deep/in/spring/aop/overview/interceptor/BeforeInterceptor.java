@@ -1,4 +1,4 @@
-package com.shawn.study.deep.in.spring.aop.interceptor;
+package com.shawn.study.deep.in.spring.aop.overview.interceptor;
 
 import java.lang.reflect.Method;
 

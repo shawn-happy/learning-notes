@@ -1,5 +1,6 @@
 package com.shawn.study.deep.in.java.concurrency.process;
 
+import java.lang.ProcessHandle.Info;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
@@ -59,7 +60,9 @@ public class ProcessDemo {
     if (name.startsWith("Mac")) {
       Process exec = Runtime.getRuntime().exec("open -a /System/Applications/Calculator.app");
       long pid = exec.pid();
+      Info info = exec.info();
       System.out.printf("当前JVM子进程ID: [%d]\n", pid);
+      System.out.println(info);
     }
   }
 }
