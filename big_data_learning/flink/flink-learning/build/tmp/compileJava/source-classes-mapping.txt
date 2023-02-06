@@ -1,4 +1,0 @@
-com/shawn/study/deep/in/flink/wc/BatchWordCount.java
- com.shawn.study.deep.in.flink.wc.BatchWordCount
-com/shawn/study/deep/in/flink/wc/StreamWordCount.java
- com.shawn.study.deep.in.flink.wc.StreamWordCount
