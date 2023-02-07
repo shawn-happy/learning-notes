@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.diffplug.spotless' version '5.6.1'
 }
 
 group 'org.example'
@@ -9,30 +10,77 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'com.diffplug.spotless'
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    spotless {
+        java {
+            importOrder()
+            removeUnusedImports()
+            toggleOffOn("@formatter:off", "@formatter:on")
+            googleJavaFormat('1.9')
+            target '**/*.java'
+        }
+    }
+}
 
 ext{
+    slf4jVersion = '1.7.32'
+    log4jVersion = '2.17.1'
+    guavaVersion = '30.1.1-jre'
+    lang3Version = '3.12.0'
+
     flinkVersion = '1.16.0'
     flinkOperatorVersion = '1.2.0'
     flinkJacksonVersion = '2.13.4-16.0'
+    hadoopClientVersion = '2.10.2'
+
+    libs_slf4jApi = [group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion]
+    libs_slf4jSimple = [group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion]
+    libs_slf4jLog4j12 = [group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4jVersion]
+    libs_log4jCore = [group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion]
+    libs_log4jApi = [group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4jVersion]
+    libs_log4jJul = [group: 'org.apache.logging.log4j', name: 'log4j-jul', version: log4jVersion]
+    libs_log4jSlf4jImpl = [group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion]
+    libs_JclOverSlf4j = [group: 'org.slf4j', name: 'jcl-over-slf4j', version: slf4jVersion]
+    libs_Jul2Slf4j = [group: 'org.slf4j', name: 'jul-to-slf4j', version: slf4jVersion]
+
+    libs_guava = [group: 'com.google.guava', name: 'guava', version: guavaVersion]
+    libs_commonsLang3 = [group: 'org.apache.commons', name: 'commons-lang3', version: lang3Version]
 
     libs_flinkClients = [group: 'org.apache.flink', name: 'flink-clients', version: flinkVersion]
     libs_flinkJava = [group: 'org.apache.flink', name: 'flink-java', version: flinkVersion]
     libs_flinkStreamingJava = [group: 'org.apache.flink', name: 'flink-streaming-java', version: flinkVersion]
-//    libs_flinkConnKafka = [group: 'org.apache.flink', name: 'flink-connector-kafka', version: flinkVersion]
-//    libs_flinkConnBase = [group: 'org.apache.flink', name: 'flink-connector-base', version: flinkVersion]
-//    libs_flinkCep = [group: 'org.apache.flink', name: 'flink-cep', version: flinkVersion]
-//    libs_flinkJson = [group: 'org.apache.flink', name: 'flink-json', version: flinkVersion]
-//    libs_flinkOperator = [group: 'org.apache.flink', name: 'flink-kubernetes-operator', version: flinkOperatorVersion]
-//    libs_flinkTestUtils = [group: 'org.apache.flink', name: 'flink-test-utils', version: flinkVersion]
-//    libs_flinkShadedJackson = [group: 'org.apache.flink', name: 'flink-shaded-jackson', version: flinkJacksonVersion]
+    libs_flinkConnKafka = [group: 'org.apache.flink', name: 'flink-connector-kafka', version: flinkVersion]
+    libs_flinkConnFile = [group: 'org.apache.flink', name: 'flink-connector-files', version: flinkVersion]
+    libs_flinkConnHDFS = [group: 'org.apache.flink', name: 'flink-hadoop-compatibility_2.12', version: flinkVersion]
+    libs_hadoopClient = [group: 'org.apache.hadoop', name: 'hadoop-client', version: hadoopClientVersion]
+    libs_flinkConnBase = [group: 'org.apache.flink', name: 'flink-connector-base', version: flinkVersion]
+    libs_flinkCep = [group: 'org.apache.flink', name: 'flink-cep', version: flinkVersion]
+    libs_flinkJson = [group: 'org.apache.flink', name: 'flink-json', version: flinkVersion]
+    libs_flinkOperator = [group: 'org.apache.flink', name: 'flink-kubernetes-operator', version: flinkOperatorVersion]
+    libs_flinkTestUtils = [group: 'org.apache.flink', name: 'flink-test-utils', version: flinkVersion]
+    libs_flinkShadedJackson = [group: 'org.apache.flink', name: 'flink-shaded-jackson', version: flinkJacksonVersion]
 }
 
 dependencies {
+
+    implementation libs_commonsLang3
+    implementation libs_guava
+    implementation libs_slf4jApi
+
     implementation libs_flinkClients
     implementation libs_flinkJava
     implementation libs_flinkStreamingJava
+    implementation libs_flinkConnFile
+    implementation libs_flinkConnKafka
+    implementation libs_flinkConnHDFS
+    implementation libs_hadoopClient
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

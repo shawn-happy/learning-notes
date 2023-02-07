@@ -18,7 +18,8 @@ public class BatchWordCount {
               for (String word : words) {
                 collector.collect(new Tuple2<>(word, 1));
               }
-            }).returns(Types.TUPLE(Types.STRING, Types.INT))
+            })
+        .returns(Types.TUPLE(Types.STRING, Types.INT))
         .groupBy(0)
         .sum(1)
         .print();
