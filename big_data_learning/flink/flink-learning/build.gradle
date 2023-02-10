@@ -54,6 +54,11 @@ ext{
     libs_commonsLang3 = [group: 'org.apache.commons', name: 'commons-lang3', version: lang3Version]
 
     libs_flinkClients = [group: 'org.apache.flink', name: 'flink-clients', version: flinkVersion]
+    libs_flinkTableAPI = [group: 'org.apache.flink', name: 'flink-table-api-java', version: flinkVersion]
+    libs_flinkTableAPIBridge = [group: 'org.apache.flink', name: 'flink-table-api-java-bridge', version: flinkVersion]
+    libs_flinkTablePlanner = [group: 'org.apache.flink', name: 'flink-table-planner-loader', version: flinkVersion]
+    libs_flinkTableRuntime = [group: 'org.apache.flink', name: 'flink-table-runtime', version: flinkVersion]
+    libs_flinkCSV = [group: 'org.apache.flink', name: 'flink-csv', version: flinkVersion]
     libs_flinkJava = [group: 'org.apache.flink', name: 'flink-java', version: flinkVersion]
     libs_flinkStreamingJava = [group: 'org.apache.flink', name: 'flink-streaming-java', version: flinkVersion]
     libs_flinkConnKafka = [group: 'org.apache.flink', name: 'flink-connector-kafka', version: flinkVersion]
@@ -81,6 +86,11 @@ dependencies {
     implementation libs_flinkConnKafka
     implementation libs_flinkConnHDFS
     implementation libs_hadoopClient
+    implementation libs_flinkTableAPI
+    implementation libs_flinkTableAPIBridge
+    implementation libs_flinkTablePlanner
+    implementation libs_flinkTableRuntime
+    implementation libs_flinkCSV
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
