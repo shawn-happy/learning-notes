@@ -1,0 +1,31 @@
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### Gradle ###
+build/
+out/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.classpath
+.project
+.settings
+
+### Fleet ###
+.fleet
+
+.DS_Store
+
+*.log
+application-local.yaml
+metastore_db/
+log/
+/hadoop_conf/
