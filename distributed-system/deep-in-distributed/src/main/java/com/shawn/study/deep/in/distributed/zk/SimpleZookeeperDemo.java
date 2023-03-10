@@ -7,6 +7,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,16 +29,27 @@ public class SimpleZookeeperDemo {
                 LOGGER.info("event Type: {}, path: {}", event.getType(), event.getPath());
               }
             });
-    for (String child : zooKeeper.getChildren("/", true)) {
-      LOGGER.info("child path: {}", child);
+    String parentPath = "/shawn_zk_test";
+    Stat exists = zooKeeper.exists(parentPath, true);
+    if (exists == null) {
+      zooKeeper.create(
+          "/shawn_zk_test",
+          "shawn".getBytes(StandardCharsets.UTF_8),
+          Ids.OPEN_ACL_UNSAFE,
+          CreateMode.PERSISTENT);
     }
-
-    zooKeeper.create(
-        "/shawn_zk_test",
-        "shawn".getBytes(StandardCharsets.UTF_8),
-        Ids.OPEN_ACL_UNSAFE,
-        CreateMode.PERSISTENT);
-    List<String> childrenPaths = zooKeeper.getChildren("/shawn_zk_test", true);
-    childrenPaths.forEach(path -> LOGGER.info("shawn_zk_test children path: {}", path));
+    exists = zooKeeper.exists(parentPath, true);
+    List<String> childrenPaths = zooKeeper.getChildren(parentPath, true);
+    childrenPaths.forEach(
+        path -> LOGGER.info("parent path: {} children path: {}", parentPath, path));
+    int version = exists.getVersion();
+    int aversion = exists.getAversion();
+    int cversion = exists.getCversion();
+    LOGGER.info("version: {}", version);
+    LOGGER.info("aversion: {}", aversion);
+    LOGGER.info("cversion: {}", cversion);
+    zooKeeper.delete(parentPath, version);
+    exists = zooKeeper.exists(parentPath, true);
+    LOGGER.info("exists: {}", exists != null);
   }
 }
