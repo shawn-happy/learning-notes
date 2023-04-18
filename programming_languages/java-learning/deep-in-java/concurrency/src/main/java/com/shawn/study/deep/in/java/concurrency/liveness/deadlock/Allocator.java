@@ -16,7 +16,7 @@ public class Allocator {
       als.add(from);
       als.add(to);
     }
-    return false;
+    return true;
   }
 
   /**

@@ -1,10 +1,15 @@
 package com.shawn.study.deep.in.java.concurrency.liveness.deadlock;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Account {
 
   // 单例
-  private Allocator actr;
+  private final Allocator actr = new Allocator();
   private double balance;
+  private final Lock lock1 = new ReentrantLock();
+  private final Lock lock2 = new ReentrantLock();
 
   private int id;
 
@@ -67,14 +72,37 @@ public class Account {
     }
   }
 
+  /**
+   * 破坏不可抢占的条件，避免线程持有锁并等待锁
+   */
+  void transfer3(Account target, double amt) {
+    lock1.lock();
+    try {
+      boolean tryLock = lock2.tryLock();
+      try {
+        if (tryLock && (this.balance > amt)) {
+          this.balance -= amt;
+          target.balance += amt;
+        }
+      } finally {
+        lock2.unlock();
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      lock1.unlock();
+    }
+  }
+
   public static void main(String[] args) {
     Account a = new Account(200.0);
     Account b = new Account(200.0);
-    for (int i = 0; i < 10011; i++) {
+    for (int i = 0; i < 100; i++) {
       Thread t1 =
           new Thread(
               () -> {
-                a.transferDeadLock(b, 100);
+                a.transfer(b, 100);
                 System.out.println(
                     Thread.currentThread().getName() + ",t1 a.balanece, " + a.balance);
                 System.out.println(
@@ -84,7 +112,7 @@ public class Account {
       Thread t2 =
           new Thread(
               () -> {
-                b.transferDeadLock(a, 100);
+                b.transfer(a, 100);
                 System.out.println(
                     Thread.currentThread().getName() + ",t2 a.balanece, " + a.balance);
                 System.out.println(
