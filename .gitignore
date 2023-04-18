@@ -27,3 +27,5 @@ target/
 *.iml
 *.classpath
 .gradle
+.fleet/
+build/

@@ -1,0 +1,48 @@
+Configuration:
+  status: WARN
+  Properties:
+    Property:
+      - name: LOG_DIR
+        value: ${sys:LOG_PATH:-log}
+      - name: LOG_FILENAME
+        value: ${sys:LOG_DIR}/idp-gateway.log
+      - name: LOG_FILENAME_PATTERN
+        value: ${sys:LOG_DIR}/$${date:yyyy-MM}/idp-gateway-%d{yyyy-MM-dd-HH}-%i.log.gz
+      - name: LOG_EXCEPTION_CONVERSION_WORD
+        value: "%xwEx"
+      - name: LOG_LEVEL_PATTERN
+        value: "%level{WARN=W, DEBUG=D, ERROR=E, TRACE=T, INFO=I, FATAL=F, length=1}"
+      - name: LOG_DATEFORMAT_PATTERN
+        value: "dd/MM/yy HH:mm:ss,SSS"
+      - name: LOG_PATTERN_LAYOUT
+        value: "%d{${LOG_DATEFORMAT_PATTERN}}{GMT+8} ${LOG_LEVEL_PATTERN} [%10.10t] %-30.30c{1.} : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}"
+      - name: CONSOLE_LOG_PATTERN
+        value: "%highlight{${sys:LOG_PATTERN_LAYOUT}}{FATAL=cyan, ERROR=red, WARN=yellow, INFO=faint, DEBUG=green, TRACE=blue}"
+      - name: FILE_LOG_PATTERN
+        value: ${sys:LOG_PATTERN_LAYOUT}
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      follow: true
+      PatternLayout:
+        pattern: ${sys:CONSOLE_LOG_PATTERN}
+    RollingFile:
+      name: File
+      fileName: ${sys:LOG_FILENAME}
+      filePattern: ${sys:LOG_FILENAME_PATTERN}
+      PatternLayout:
+        Pattern: ${sys:FILE_LOG_PATTERN}
+      Policies:
+        SizeBasedTriggeringPolicy:
+          size: 200 MB
+      DefaultRolloverStrategy:
+        fileIndex: max
+        min: 1
+        max: 10
+  loggers:
+    Root:
+      level: info
+      AppenderRef:
+        - ref: Console
+        - ref: File
