@@ -13,3 +13,6 @@ c_workspace/out/
 *.flattened-pom.xml
 
 cmake-build-debug
+
+.settings
+*.project

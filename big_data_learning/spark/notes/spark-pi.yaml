@@ -2,7 +2,7 @@ apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
   name: spark-pi
-  namespace: operator-run
+  namespace: operators
 spec:
   type: Scala
   mode: cluster
