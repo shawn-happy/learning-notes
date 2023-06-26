@@ -230,7 +230,7 @@ void ObjectMonitor::notifyAll(TRAPS) {}
 * 当调用了`wait()`的线程再次获取到锁的时候，会从`wait()`中返回，继续检查状态是否满足条件，如果不满足则继续执行上述两步，如果满足了，则执行业务逻辑。
 * `notify()`和`notifyAll()`的区别在于`notifyAll()`会将`_WaitSet`中所有线程取出来放入`_EntryList`中，让他们一起竞争锁。
 
-### ReentrantLock+Condition实现方式
+### ReentrantLock+Condition
 
 ```java
 public class BlockingQueueWithCondition implements Queue {
@@ -337,4 +337,37 @@ public interface Condition {
 4. `Condition#awaitUntil(Date deadline)`，表示等待到某个时间点deadline，函数返回，返回值如果为false则表示已经超时，返回值如果为true，则表示线程被中断或者被唤醒。
 
 `Condition`里的`signalXXX()`方法基本等同于`Object#notify()/notifyAll()`。
+
+Condition实现原理如下：
+
+`Condition`是一个接口，其实现类为`java.util.concurrent.locks.AbstractQueuedSynchronizer.ConditionObject`，是AQS的一个内部类，侧面说明条件变量是需要相关的锁操作的。
+
+```java
+public class ConditionObject implements Condition, java.io.Serializable {
+    private static final long serialVersionUID = 1173984872572414699L;
+    /** First node of condition queue. */
+    private transient Node firstWaiter;
+    /** Last node of condition queue. */
+    private transient Node lastWaiter;
+    // ...
+}
+
+static final class Node {
+	volatile int waitStatus;
+	volatile Node prev;
+	volatile Node next;
+	volatile Thread thread;
+	Node nextWaiter; // 用于Condition
+}
+```
+
+通过 `firstWaiter` 和 `lastWaiter` 构建的队列称为等待队列，用来存储调用了`await()`函数的线程
+
+AQS也包含一个队列，通过`head`和`tail`构建的同步队列，用于存储等待锁的线程。
+
+一个 Node 可以同时加入等待队列和同步队列。
+
+![reentrantLock&Condition](./image/reentrantLock&Condition.png)
+
+如上图所示，Lock中的同步队列是双向链表，由于双向链表的操作复杂性，增加虚拟头节点可以有效简化操作。Condition中的等待队列是单向链表，就没有必要增加虚拟头节点的必要了。
 
