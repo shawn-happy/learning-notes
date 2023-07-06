@@ -371,3 +371,103 @@ AQS也包含一个队列，通过`head`和`tail`构建的同步队列，用于�
 
 如上图所示，Lock中的同步队列是双向链表，由于双向链表的操作复杂性，增加虚拟头节点可以有效简化操作。Condition中的等待队列是单向链表，就没有必要增加虚拟头节点的必要了。
 
+`await()`源代码如下：
+
+```java
+public final void await() throws InterruptedException {
+    // 检测到中断，抛异常
+    if (Thread.interrupted())
+        throw new InterruptedException();
+  	// 将线程包裹为Node添加到Condition等待队列尾部
+    Node node = addConditionWaiter();
+    // 将state修改为0，返回释放前锁的状态
+    int savedState = fullyRelease(node);
+    int interruptMode = 0;
+    while (!isOnSyncQueue(node)) { // 被意外唤醒的话需要再次挂起
+        LockSupport.park(this);
+        if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+            break;
+    }
+    // 接收到 signal，返回前需要再排队等待锁
+    if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
+        interruptMode = REINTERRUPT;
+    if (node.nextWaiter != null) // clean up if cancelled
+        unlinkCancelledWaiters();
+    if (interruptMode != 0)
+        reportInterruptAfterWait(interruptMode);
+}
+
+// 加入条件等待队列
+private Node addConditionWaiter() {
+    Node t = lastWaiter;
+    // If lastWaiter is cancelled, clean out.
+    if (t != null && t.waitStatus != Node.CONDITION) {
+        unlinkCancelledWaiters();
+        t = lastWaiter;
+    }
+
+    // 加入链表末尾
+    Node node = new Node(Thread.currentThread(), Node.CONDITION);
+    if (t == null)
+        firstWaiter = node;
+    else
+        t.nextWaiter = node;
+    lastWaiter = node;
+    return node;
+}
+
+
+// 意外唤醒
+final boolean isOnSyncQueue(Node node) {
+    // 进入同步队列时，waitStatus为0,且prev指向前驱节点
+    // 之后节点可能被取消，状态变为CANCELLED
+    if (node.waitStatus == Node.CONDITION || node.prev == null)
+        return false;
+    // 存在后继节点，肯定在同步队列中
+    if (node.next != null) 
+        return true;
+    // 兜底，从tail查找，确保node已经被加入同步队列
+    return findNodeFromTail(node);
+}
+
+```
+
+`signal()`源代码如下：
+
+```java
+public final void signal() {
+  // 必须保证持有锁
+  if (!isHeldExclusively())
+    throw new IllegalMonitorStateException();
+  Node first = firstWaiter;
+  if (first != null)
+    // 唤醒队首线程
+    doSignal(first);
+}
+
+private void doSignal(Node first) {
+  do {
+    // 将first移出队列
+    if ( (firstWaiter = first.nextWaiter) == null)
+      lastWaiter = null;
+    first.nextWaiter = null;
+  } while (!transferForSignal(first) &&  // 唤醒线程
+           (first = firstWaiter) != null);
+}
+
+final boolean transferForSignal(Node node) {
+  // 节点状态不为CONDITION，说明已经被取消了，不进行唤醒
+  if (!node.compareAndSetWaitStatus(Node.CONDITION, 0))
+    return false;
+  
+  // 将节点加入到同步队列，返回之前的队尾节点
+  Node p = enq(node);
+  int ws = p.waitStatus;
+  // 如果设置前驱节点的状态失败（如前驱已被取消）则直接唤醒线程
+  // 唤醒后的线程会在 `await` 中执行 `acquireQueued` 直到抢锁成功
+  if (ws > 0 || !p.compareAndSetWaitStatus(ws, Node.SIGNAL))
+    LockSupport.unpark(node.thread);
+  return true;
+}
+```
+
