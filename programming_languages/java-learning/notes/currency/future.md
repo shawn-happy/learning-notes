@@ -211,7 +211,11 @@ private static void getResultBySemaphore() {
 }
 ```
 
-上一篇我们讲了线程池，利用`ThreadPoolExecutor`的`execute(Runnable command)`方法，利用这个方法虽说可以提交任务，但是却没有办法获取任务执行结果。另外，上述介绍的几个获取到执行结果的方式，也不是很优雅，不是最佳实践。那么我们如果需要获取任务的执行结果，可以使用`submit()`方法和`Future`工具类来实现。`Future`方便的用于异步结果的获取， 本文将会通过具体的例子讲解如何使用`Future`。
+上面提到的获取线程执行结果的方法，暂时基于之前学到的内容，我只能想到这些。这些实现方式也不是很优雅，不是最佳实践。
+
+线程池，利用`ThreadPoolExecutor`的`execute(Runnable command)`方法，利用这个方法虽说可以提交任务，但是却没有办法获取任务执行结果。
+
+那么我们如果需要获取任务的执行结果并且优雅的实现，可以通过`Future`接口和`Callable`接口配合实现， 本文将会通过具体的例子讲解如何使用`Future`。
 
 `Future`最主要的作用是，比如当做比较耗时运算的时候，如果我们一直在原地等待方法返回，显然是不明智的，整体程序的运行效率会大大降低。我们可以把运算的过程放到子线程去执行，再通过`Future`去控制子线程执行的计算过程，最后获取到计算结果。这样一来就可以把整个程序的运行效率提高，是一种异步的思想。
 
@@ -407,14 +411,213 @@ public void run() {
 }
 ```
 
+![FutureTask-执行run()流程.png](./image/FutureTask-执行run()流程.png)
+
+**set()**
+
+```java
+protected void set(V v) {
+  	// state变量，通过CAS操作，将NEW->COMPLETING
+    if (STATE.compareAndSet(this, NEW, COMPLETING)) {
+        // 将结果赋值给outcome属性
+        outcome = v;
+        // state状态直接赋值为NORMAL，不需要CAS
+        STATE.setRelease(this, NORMAL); // final state
+        finishCompletion();
+    }
+}
+```
+
+**setException()**
+
+```java
+protected void setException(Throwable t) {
+    // state变量，通过CAS操作，将NEW->COMPLETING
+    if (STATE.compareAndSet(this, NEW, COMPLETING)) {
+        // 将异常赋值给outcome属性
+        outcome = t;
+        // state状态直接赋值为EXCEPTIONAL，不需要CAS
+        STATE.setRelease(this, EXCEPTIONAL); // final state
+        finishCompletion();
+    }
+}
+```
+
+**finishCompletion()**
+
+`set()`和`setException()`两个方法最后都调用了`finishCompletion()`方法，完成一些善后工作，具体流程如下：
+
+```java
+private void finishCompletion() {
+    // assert state > COMPLETING;
+    for (WaitNode q; (q = waiters) != null;) {
+        // 移除等待线程
+        if (WAITERS.weakCompareAndSet(this, q, null)) {
+            // 自旋遍历等待线程
+            for (;;) {
+                Thread t = q.thread;
+                if (t != null) {
+                    q.thread = null;
+                    // 唤醒等待线程
+                    LockSupport.unpark(t);
+                }
+                WaitNode next = q.next;
+                if (next == null)
+                    break;
+                q.next = null; // unlink to help gc
+                q = next;
+            }
+            break;
+        }
+    }
+    // 任务完成后调用函数，自定义扩展
+    done();
+
+    callable = null;        // to reduce footprint
+}
+```
+
+**handlePossibleCancellationInterrupt()**
+
+```java
+private void handlePossibleCancellationInterrupt(int s) {
+    if (s == INTERRUPTING)
+        // 在中断者中断线程之前可能会延迟，所以我们只需要让出CPU时间片自旋等待
+        while (state == INTERRUPTING)
+            Thread.yield(); // wait out pending interrupt
+}
+```
+
 ### get()执行流程
 
 ```java
 public V get() throws InterruptedException, ExecutionException {
     int s = state;
     if (s <= COMPLETING)
+        // awaitDone用于等待任务完成，或任务因为中断或超时而终止。返回任务的完成状态。
         s = awaitDone(false, 0L);
     return report(s);
+}
+```
+
+具体流程：
+
+![FutureTask-执行get().png](./image/FutureTask-执行get().png)
+
+**awaitDone()**
+
+```java
+private int awaitDone(boolean timed, long nanos)
+    throws InterruptedException {
+    long startTime = 0L;    // Special value 0L means not yet parked
+    WaitNode q = null;
+    boolean queued = false;
+    for (;;) {
+        // 获取到当前状态
+        int s = state;
+        // 如果当前状态不为NEW或者COMPLETING
+        if (s > COMPLETING) {
+            if (q != null)
+                q.thread = null;
+            // 直接返回state
+            return s;
+        }
+        // COMPLETING是一个很短暂的状态，调用Thread.yield期望让出时间片，之后重试循环。
+        else if (s == COMPLETING)
+            Thread.yield();
+        // 如果阻塞线程被中断则将当前线程从阻塞队列中移除
+        else if (Thread.interrupted()) {
+            removeWaiter(q);
+            throw new InterruptedException();
+        }
+        
+        //  新进来的线程添加等待节点
+        else if (q == null) {
+            if (timed && nanos <= 0L)
+                return s;
+            q = new WaitNode();
+        }
+        else if (!queued)
+            /*
+             *  这是Treiber Stack算法入栈的逻辑。
+             *  Treiber Stack是一个基于CAS的无锁并发栈实现,
+             *  更多可以参考https://en.wikipedia.org/wiki/Treiber_Stack
+             */
+            queued = WAITERS.weakCompareAndSet(this, q.next = waiters, q);
+        else if (timed) {
+            final long parkNanos;
+            if (startTime == 0L) { // first time
+                startTime = System.nanoTime();
+                if (startTime == 0L)
+                    startTime = 1L;
+                parkNanos = nanos;
+            } else {
+                long elapsed = System.nanoTime() - startTime;
+                if (elapsed >= nanos) {
+                    // 超时，移除栈中节点。
+                    removeWaiter(q);
+                    return state;
+                }
+                parkNanos = nanos - elapsed;
+            }
+            // nanoTime may be slow; recheck before parking
+            // 未超市并且状态为NEW，阻塞当前线程
+            if (state < COMPLETING)
+                LockSupport.parkNanos(this, parkNanos);
+        }
+        else
+            LockSupport.park(this);
+    }
+}
+```
+
+**removeWaiter()**
+
+```java
+private void removeWaiter(WaitNode node) {
+  if (node != null) {
+    node.thread = null;
+    retry:
+    for (;;) {          // restart on removeWaiter race
+      for (WaitNode pred = null, q = waiters, s; q != null; q = s) {
+        s = q.next;
+        // 如果当前节点仍有效,则置pred为当前节点，继续遍历。
+        if (q.thread != null)
+          pred = q;
+        /*
+        * 当前节点已无效且有前驱，则将前驱的后继置为当前节点的后继实现删除节点。
+        * 如果前驱节点已无效，则重新遍历waiters栈。
+        */
+        else if (pred != null) {
+          pred.next = s;
+          if (pred.thread == null) // check for race
+            continue retry;
+        }
+        /*
+        * 当前节点已无效，且当前节点没有前驱，则将栈顶置为当前节点的后继。
+        * 失败的话重新遍历waiters栈。
+        */
+        else if (!WAITERS.compareAndSet(this, q, s))
+          continue retry;
+      }
+      break;
+    }
+  }
+}
+
+
+```
+
+**report()**
+
+```java
+private V report(int s) throws ExecutionException {
+    Object x = outcome;
+    if (s == NORMAL)
+        return (V)x;
+    if (s >= CANCELLED)
+        throw new CancellationException();
+    throw new ExecutionException((Throwable)x);
 }
 ```
 
@@ -422,10 +625,12 @@ public V get() throws InterruptedException, ExecutionException {
 
 ```java
 public boolean cancel(boolean mayInterruptIfRunning) {
+    // 状态机不是NEW 或CAS更新状态 流转到INTERRUPTING或者CANCELLED失败，不允许cancel
     if (!(state == NEW && STATE.compareAndSet
           (this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED)))
         return false;
     try {    // in case call to interrupt throws exception
+        // 如果要求中断执行中的任务，则直接中断任务执行线程，并更新状态机为最终状态INTERRUPTED
         if (mayInterruptIfRunning) {
             try {
                 Thread t = runner;
@@ -444,7 +649,7 @@ public boolean cancel(boolean mayInterruptIfRunning) {
 
 # 经典案例
 
-烧水泡茶：
+引用**极客时间-java并发编程**课程的案例烧水泡茶：
 
 ![img](image/Future-任务分工图.png)
 
