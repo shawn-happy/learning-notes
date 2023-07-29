@@ -72,9 +72,7 @@ public class Account {
     }
   }
 
-  /**
-   * 破坏不可抢占的条件，避免线程持有锁并等待锁
-   */
+  /** 破坏不可抢占的条件，避免线程持有锁并等待锁 */
   void transfer3(Account target, double amt) {
     lock1.lock();
     try {

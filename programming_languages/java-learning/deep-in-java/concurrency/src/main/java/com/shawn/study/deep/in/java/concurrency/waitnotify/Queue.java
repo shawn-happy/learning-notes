@@ -9,5 +9,4 @@ public interface Queue {
   int size();
 
   boolean isEmpty();
-
 }

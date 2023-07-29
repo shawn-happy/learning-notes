@@ -1,7 +1,5 @@
 package com.shawn.study.deep.in.java.concurrency.waitnotify;
 
-import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class BlockingQueueWithSync implements Queue {
 

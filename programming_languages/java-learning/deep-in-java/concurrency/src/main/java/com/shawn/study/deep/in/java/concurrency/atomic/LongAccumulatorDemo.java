@@ -5,7 +5,7 @@ import java.util.function.LongBinaryOperator;
 
 public class LongAccumulatorDemo {
 
-  public static class LongMax implements LongBinaryOperator{
+  public static class LongMax implements LongBinaryOperator {
 
     @Override
     public long applyAsLong(long left, long right) {
