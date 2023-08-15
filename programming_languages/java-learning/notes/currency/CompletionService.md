@@ -1,3 +1,27 @@
+# CompletionService的应用场景
+
+在学习[future](./future.md)的时候，我们提到，`future.get()`方法会阻塞线程，所以如果A,B,C三个线程同时获取执行结果，如果A先执行，但是A的执行时间很长，那么即使B,C执行很短，也无法获取到B,C的执行结果，因为主线程阻塞在`A.get()`上了。那么如何解决这个问题呢？答案就是`java.util.concurrent.CompletionService`
+
+```java
+ExecutorService executorService = Executors.newFixedThreadPool(4);
+List<Future> futures = new ArrayList<Future<Integer>>();
+futures.add(executorService.submit(A));
+futures.add(executorService.submit(B));
+futures.add(executorService.submit(C));
+
+// 遍历 Future list，通过 get() 方法获取每个 future 结果
+for (Future future:futures) {
+    Integer result = future.get();
+    // 其他业务逻辑 如果A执行时间很长，阻塞
+}
+```
+
+CompletionService它的设计理念就是哪个任务先执行完成，get() 方法就会获取到相应的任务结果，这么做的好处是什么呢？
+
+# CompletionService的优点
+
+
+
 ```java
 // 创建线程池
 ExecutorService executor =
