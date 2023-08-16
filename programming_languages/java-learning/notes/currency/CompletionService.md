@@ -1,6 +1,6 @@
-# CompletionService的应用场景
+# CompletionService简介
 
-在学习[future](./future.md)的时候，我们提到，`future.get()`方法会阻塞线程，所以如果A,B,C三个线程同时获取执行结果，如果A先执行，但是A的执行时间很长，那么即使B,C执行很短，也无法获取到B,C的执行结果，因为主线程阻塞在`A.get()`上了。那么如何解决这个问题呢？答案就是`java.util.concurrent.CompletionService`
+在学习[future](./future.md)的时候，我们提到，`future.get()`方法会阻塞线程，所以如果A,B,C三个线程同时获取执行结果，如果A先执行，但是A的执行时间很长，那么即使B,C执行很短，也无法获取到B,C的执行结果，因为主线程阻塞在`A.get()`上了。
 
 ```java
 ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -11,170 +11,176 @@ futures.add(executorService.submit(C));
 
 // 遍历 Future list，通过 get() 方法获取每个 future 结果
 for (Future future:futures) {
-    Integer result = future.get();
-    // 其他业务逻辑 如果A执行时间很长，阻塞
+	Integer result = future.get();
+	// 其他业务逻辑 如果A执行时间很长，阻塞
 }
 ```
 
-CompletionService它的设计理念就是哪个任务先执行完成，get() 方法就会获取到相应的任务结果，这么做的好处是什么呢？
+那么如何让B,C也有机会能够获取到执行结果呢？答案就是`java.util.concurrent.CompletionService`。
 
-# CompletionService的优点
-
-
+`CompletionService`是Java8的新增接口，JDK为其提供了一个实现类`ExecutorCompletionService`。这个类是为线程池中`Task`的执行结果服务的，即为`Executor`中`Task`返回`Future`而服务的。`CompletionService`的实现目标是**任务先完成可优先获取到，即结果按照完成先后顺序排序。**
 
 ```java
-// 创建线程池
-ExecutorService executor =
-  Executors.newFixedThreadPool(3);
-// 异步向电商 S1 询价
-Future<Integer> f1 = 
-  executor.submit(
-    ()->getPriceByS1());
-// 异步向电商 S2 询价
-Future<Integer> f2 = 
-  executor.submit(
-    ()->getPriceByS2());
-// 异步向电商 S3 询价
-Future<Integer> f3 = 
-  executor.submit(
-    ()->getPriceByS3());
-    
-// 获取电商 S1 报价并保存
-r=f1.get();
-executor.execute(()->save(r));
-  
-// 获取电商 S2 报价并保存
-r=f2.get();
-executor.execute(()->save(r));
-  
-// 获取电商 S3 报价并保存  
-r=f3.get();
-executor.execute(()->save(r));
+ExecutorService executorService = Executors.newFixedThreadPool(4);
 
+// ExecutorCompletionService 是 CompletionService 唯一实现类
+CompletionService completionService = new ExecutorCompletionService<>(executorService );
 
+List<Future> futures = new ArrayList<Future<Integer>>();
+futures.add(completionService.submit(A));
+futures.add(completionService.submit(B));
+futures.add(completionService.submit(C));
+
+// 遍历 Future list，通过 get() 方法获取每个 future 结果
+for (int i = 0; i < futures.size(); i++) {
+    Integer result = completionService.take().get();
+    // 其他业务逻辑
+}
 ```
 
-上面代码有个需要注意的，如果获取电商S1的报价耗时很长，那么即便获取电商S2报价的耗时很短，也无法让保存S2的操作先执行，因为主线程阻塞在了f1.get()操作上。
+# CompletionService原理
 
-那么如何解决呢？我们可以增加一个阻塞队列，获取到S1,S2,S3的报价都进入阻塞队列，然后再主线程中消费阻塞队列，这样就能保证先获取到的报价先保存到数据库了。代码如下：
+我们来试想一下，如果是你应该如何解决上述`Feture`带来的阻塞问题呢？可以通过阻塞队列来实现，伪代码如下：
 
 ```java
 // 创建阻塞队列
 BlockingQueue<Integer> bq =
   new LinkedBlockingQueue<>();
-// 电商 S1 报价异步进入阻塞队列  
-executor.execute(()->
-  bq.put(f1.get()));
-// 电商 S2 报价异步进入阻塞队列  
-executor.execute(()->
-  bq.put(f2.get()));
-// 电商 S3 报价异步进入阻塞队列  
-executor.execute(()->
-  bq.put(f3.get()));
-// 异步保存所有报价  
-for (int i=0; i<3; i++) {
+// 任务A 异步进入阻塞队列  
+executor.execute(() -> bq.put(A.get()));
+// 任务B 异步进入阻塞队列  
+executor.execute(() -> bq.put(B.get()));
+// 任务C 异步进入阻塞队列  
+executor.execute(()-> bq.put(C.get()));
+  
+for (int i = 0; i < 3; i++) {
   Integer r = bq.take();
-  executor.execute(()->save(r));
-}  
-
+  // 异步执行所有业务逻辑
+  executor.execute(()->action(r));
+}
 ```
 
-利用CompletionService实现询价系统
+实际上`CompletionService`的实现原理也是内部维护了一个阻塞队列，当任务执行结束就把任务的执行结果加入到阻塞队列中，不同的是CompletionService是把任务执行结果的Future对象加入到阻塞队列中。
 
-CompletionService的实现原理也是内部维护了一个阻塞队列，当任务执行结束就把任务的执行结果加入到阻塞队列中，不同的是CompletionService是把任务执行结果的Future对象加入到阻塞队列中。
-
-ExecutorComletionService是CompletionService的实现类
-
-两个构造方法：
-
-1. ExecutorComletionService(Executor executor);
-2. ExecutorComletionService(Executor executor,BlockingQueue< Future< V > > completionService );
-
-如果我们使用的ExecutorComletionService(Executor executor),那么默认使用无界的LinkedBlockingQueue。
+`CompletionService`是一个接口，`submit()`用于提交任务，`take()和poll()`用于从阻塞队列中获取并移除一个元素，它们的区别在于如果阻塞队列是空的，那么调用`take()`方法的线程就会被阻塞，而`poll()`方法会返回`null`值。
 
 ```java
-// 创建线程池
-ExecutorService executor = 
-  Executors.newFixedThreadPool(3);
-// 创建 CompletionService
-CompletionService<Integer> cs = new 
-  ExecutorCompletionService<>(executor);
-// 异步向电商 S1 询价
-cs.submit(()->getPriceByS1());
-// 异步向电商 S2 询价
-cs.submit(()->getPriceByS2());
-// 异步向电商 S3 询价
-cs.submit(()->getPriceByS3());
-// 将询价结果异步保存到数据库
-for (int i=0; i<3; i++) {
-  Integer r = cs.take().get();
-  executor.execute(()->save(r));
+public interface CompletionService<V> {
+    Future<V> submit(Callable<V> task);
+    Future<V> submit(Runnable task, V result);
+    Future<V> take() throws InterruptedException;
+    Future<V> poll();
+    Future<V> poll(long timeout, TimeUnit unit) throws InterruptedException;
 }
-
 ```
 
+其实现类`ExecutorCompletionService`，实际上可以看做是`Executor`和 `BlockingQueue`的结合体，`ExecutorCompletionService`把具体的计算任务交给 `Executor`完成，通过`BlockingQueue`的`take()`方法获得任务执行的结果。
 
-
-1. submit(Callable< V > task);
-2. submit(Runnable task,V result);
-3. Future< V > take() throws InterruptException;
-4. Future< V > poll();
-5. Future< V > poll(long timeout,TimeUnit unit) throws InterruptException;
-
-这三个方法，区别在于如果阻塞队列是空的，那么调用take()方法的线程就会被阻塞，而poll()方法会返回null值。
-
-poll(long timeout,TimeUnit unit)方法支持以超时的方式获取并移除阻塞队列头部的一个元素，如果等待timeout unit时间，阻塞队列还是空的，那么该方法返回null值。
-
-
-
-Dubbo中有一个叫做Forking的集群模式，这种集群模式下，支持并行地调用多个查询服务，只要有一个成功返回结果，整个服务就可以返回了。例如你需要提供一个地址转坐标的服务，为了保证该服务的高可用和性能，你可以并行地调用3个地图服务商的API，然后只要有一个正确返回了结果r，那么地址转坐标这个服务就可以直接返回r了。这种集群模式可以容忍2个地图服务商异常，但缺点是消耗的资源偏多。
+`ExecutorCompletionService`有两个构造函数
 
 ```java
-geocoder(addr) {
-  // 并行执行以下 3 个查询服务， 
-  r1=geocoderByS1(addr);
-  r2=geocoderByS2(addr);
-  r3=geocoderByS3(addr);
-  // 只要 r1,r2,r3 有一个返回
-  // 则返回
-  return r1|r2|r3;
+public ExecutorCompletionService(Executor executor) {
+    if (executor == null)
+        throw new NullPointerException();
+    this.executor = executor;
+    // 判断executor是不是ThreadPoolExecutor,ScheduledThreadPoolExecutor,ForkJoinPool
+    // 其余框架也有实现了AbstractExecutorService抽象类，目前JDK里只有上述的三种实现
+    // 如果不是，则为null
+    this.aes = (executor instanceof AbstractExecutorService) ?
+        (AbstractExecutorService) executor : null;
+    this.completionQueue = new LinkedBlockingQueue<Future<V>>();
 }
 
+public ExecutorCompletionService(Executor executor,
+                                 BlockingQueue<Future<V>> completionQueue) {
+    if (executor == null || completionQueue == null)
+        throw new NullPointerException();
+    this.executor = executor;
+    // 判断executor是不是ThreadPoolExecutor,ScheduledThreadPoolExecutor,ForkJoinPool
+    // 其余框架也有实现了AbstractExecutorService抽象类，目前JDK里只有上述的三种实现
+    // 如果不是，则为null
+    this.aes = (executor instanceof AbstractExecutorService) ?
+        (AbstractExecutorService) executor : null;
+    this.completionQueue = completionQueue;
+}
+```
 
-// 创建线程池
-ExecutorService executor =
-  Executors.newFixedThreadPool(3);
-// 创建 CompletionService
-CompletionService<Integer> cs =
-  new ExecutorCompletionService<>(executor);
-// 用于保存 Future 对象
-List<Future<Integer>> futures =
-  new ArrayList<>(3);
-// 提交异步任务，并保存 future 到 futures 
-futures.add(
-  cs.submit(()->geocoderByS1()));
-futures.add(
-  cs.submit(()->geocoderByS2()));
-futures.add(
-  cs.submit(()->geocoderByS3()));
-// 获取最快返回的任务执行结果
-Integer r = 0;
-try {
-  // 只要有一个成功返回，则 break
-  for (int i = 0; i < 3; ++i) {
-    r = cs.take().get();
-    // 简单地通过判空来检查是否成功返回
-    if (r != null) {
-      break;
+两个构造器都需要传入`Executor`，如果不传`BlockingQueue<Futrue>`，默认会创建一个`LinkedBlockingQueue<Future<V>>`的队列，该`BlockingQueue`的作用是保存`Executor`执行的结果。
+
+`submit()`源码如下：
+
+```java
+public Future<V> submit(Callable<V> task) {
+    if (task == null) throw new NullPointerException();
+    RunnableFuture<V> f = newTaskFor(task);
+    executor.execute(new QueueingFuture<V>(f, completionQueue));
+    return f;
+}
+
+public Future<V> submit(Runnable task, V result) {
+    if (task == null) throw new NullPointerException();
+    RunnableFuture<V> f = newTaskFor(task, result);
+    executor.execute(new QueueingFuture<V>(f, completionQueue));
+    return f;
+}
+```
+
+当提交一个任务到`ExecutorCompletionService`时，首先需要将`task`封装成`RunableFuture<V>`，通过`newTaskFor()`完成，然后再将`RunableFuture`封装成`QueueingFuture`，它是`FutureTask`的一个子类，然后改写`FutureTask`的`done`方法，之后把`Executor`执行的计算结果放入`BlockingQueue`中。
+
+`newTaskFor()`的源码如下：
+
+```java
+private RunnableFuture<V> newTaskFor(Callable<V> task) {
+    // aes是AbstractExecutorService，其实现类是ThreadPoolExecutor，ForkJoinPool，SchedulerThreadPoolExecutor
+    if (aes == null) 
+        return new FutureTask<V>(task);
+    else
+        return aes.newTaskFor(task);
+}
+
+private RunnableFuture<V> newTaskFor(Runnable task, V result) {
+    if (aes == null)
+        return new FutureTask<V>(task, result);
+    else
+        return aes.newTaskFor(task, result);
+}
+```
+
+`QueueingFuture`的源码如下：
+
+```java
+private static class QueueingFuture<V> extends FutureTask<Void> {
+    QueueingFuture(RunnableFuture<V> task,
+                   BlockingQueue<Future<V>> completionQueue) {
+        super(task, null);
+        this.task = task;
+        this.completionQueue = completionQueue;
     }
-  }
-} finally {
-  // 取消所有任务
-  for(Future<Integer> f : futures)
-    f.cancel(true);
+    private final Future<V> task;
+    private final BlockingQueue<Future<V>> completionQueue;
+    // 会被java.util.concurrent.FutureTask#finishCompletion调用，判读是否计算完成
+    // 计算结果放在阻塞队列中
+    protected void done() { completionQueue.add(task); }
 }
-// 返回结果
-return r;
-
 ```
 
+`take()`和`poll()`方法如下：
+
+```java
+// 从结果队列中获取并移除一个已经执行完成的任务的结果，如果没有就会阻塞，直到有任务完成返回结果。
+public Future<V> take() throws InterruptedException {
+    return completionQueue.take();
+}
+
+// 从结果队列中获取并移除一个已经执行完成的任务的结果，如果没有就会返回null，该方法不会阻塞。
+public Future<V> poll() {
+    return completionQueue.poll();
+}
+
+// 从结果队列中获取并移除一个已经执行完成的任务的结果，如果没有就会返回null，该方法不会阻塞。
+// 超时
+public Future<V> poll(long timeout, TimeUnit unit)
+        throws InterruptedException {
+    return completionQueue.poll(timeout, unit);
+}
+```
