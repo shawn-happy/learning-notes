@@ -32,8 +32,19 @@ public class DynamicArrayTest {
   public void testRemove() {
     DynamicArray<Integer> list = new DynamicArray<>();
     list.add(1);
-    list.remove(Integer.valueOf(0));
-    System.out.println(list.toString());
+    int remove = list.remove(0);
+    assertEquals(1, remove);
+  }
+
+  @Test
+  public void testRemoveByValue() {
+    DynamicArray<Integer> list = new DynamicArray<>();
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    boolean remove = list.remove(Integer.valueOf(2));
+    assertTrue(remove);
+    assertEquals(2, list.size());
   }
 
   @Test(expected = Exception.class)
