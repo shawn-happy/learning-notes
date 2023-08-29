@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -21,7 +22,7 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i);
     }
-    System.out.println(linkedList.toString());
+    assertEquals(10, linkedList.size());
   }
 
   @Test
@@ -59,11 +60,11 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    System.out.println(String.format("init data: %s", linkedList.toString()));
+    System.out.printf("init data: %s%n", linkedList.toString());
     linkedList.addBefore(linkedList.get(2), 22);
-    System.out.println(String.format("add before index: %d, data: %s", 2, linkedList.toString()));
+    System.out.printf("add before index: %d, data: %s%n", 2, linkedList.toString());
     linkedList.addBefore(linkedList.get(0), 0);
-    System.out.println(String.format("add before index: %d, data: %s", 0, linkedList.toString()));
+    System.out.printf("add before index: %d, data: %s%n", 0, linkedList.toString());
   }
 
   @Test(expected = IndexOutOfBoundsException.class)
@@ -72,11 +73,11 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    System.out.println(String.format("init data: %s", linkedList.toString()));
+    System.out.printf("init data: %s%n", linkedList.toString());
     linkedList.addBefore(linkedList.get(2), 22);
-    System.out.println(String.format("add before index: %d, %s", 2, linkedList.toString()));
+    System.out.printf("add before index: %d, %s%n", 2, linkedList.toString());
     linkedList.addBefore(linkedList.get(linkedList.size()), 0);
-    System.out.println(String.format("add before index: %d, %s", 0, linkedList.toString()));
+    System.out.printf("add before index: %d, %s%n", 0, linkedList.toString());
   }
 
   @Test
@@ -85,11 +86,11 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    System.out.println(String.format("init data: %s", linkedList.toString()));
+    System.out.printf("init data: %s%n", linkedList.toString());
     linkedList.addAfter(linkedList.get(2), 22);
-    System.out.println(String.format("add after index: %d, %s", 2, linkedList.toString()));
+    System.out.printf("add after index: %d, %s%n", 2, linkedList.toString());
     linkedList.addAfter(linkedList.get(0), 0);
-    System.out.println(String.format("add after index: %d, %s", 0, linkedList.toString()));
+    System.out.printf("add after index: %d, %s%n", 0, linkedList.toString());
   }
 
   @Test(expected = IndexOutOfBoundsException.class)
@@ -98,11 +99,11 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    System.out.println(String.format("init data: %s", linkedList.toString()));
+    System.out.printf("init data: %s%n", linkedList.toString());
     linkedList.addAfter(linkedList.get(2), 22);
-    System.out.println(String.format("add after index: %d, %s", 2, linkedList.toString()));
+    System.out.printf("add after index: %d, %s%n", 2, linkedList.toString());
     linkedList.addAfter(linkedList.get(linkedList.size()), 0);
-    System.out.println(String.format("add after index: %d, %s", 0, linkedList.toString()));
+    System.out.printf("add after index: %d, %s%n", 0, linkedList.toString());
   }
 
   @Test
@@ -166,11 +167,11 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    assertTrue(linkedList.remove(new Integer(2)));
+    assertTrue(linkedList.remove(Integer.valueOf(2)));
     System.out.println(linkedList);
-    assertFalse(linkedList.remove(new Integer(2)));
+    assertFalse(linkedList.remove(Integer.valueOf(2)));
     System.out.println(linkedList);
-    assertTrue(linkedList.remove(new Integer(5)));
+    assertTrue(linkedList.remove(Integer.valueOf(5)));
     System.out.println(linkedList);
   }
 
@@ -180,9 +181,8 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    Iterator<Integer> iterator = linkedList.iterator();
-    while (iterator.hasNext()) {
-      System.out.println(iterator.next());
+    for (Integer integer : linkedList) {
+      System.out.println(integer);
     }
   }
 
@@ -192,9 +192,8 @@ public class SingleLinkedListTest {
     for (int i = 0; i < 10; i++) {
       linkedList.add(i + 1);
     }
-    Iterator<Integer> iterator = linkedList.iterator();
-    while (iterator.hasNext()) {
-      System.out.println(iterator.next());
+    for (Integer integer : linkedList) {
+      System.out.println(integer);
     }
     linkedList.clear();
     Iterator<Integer> it = linkedList.iterator();

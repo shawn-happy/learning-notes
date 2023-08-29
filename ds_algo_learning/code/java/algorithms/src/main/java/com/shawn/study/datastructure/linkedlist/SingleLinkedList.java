@@ -227,7 +227,7 @@ public class SingleLinkedList<T> implements Iterable<T> {
     return p;
   }
 
-  private boolean deleteByNode(Node node) {
+  private boolean deleteByNode(Node<T> node) {
     if (node == null || head == null) {
       return false;
     }
@@ -235,7 +235,7 @@ public class SingleLinkedList<T> implements Iterable<T> {
       head = head.next;
       return true;
     }
-    Node p = head;
+    Node<T> p = head;
     while (p != null && p.next != node) {
       p = p.next;
     }
