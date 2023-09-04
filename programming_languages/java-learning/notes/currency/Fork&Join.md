@@ -84,6 +84,8 @@ ForkJoinPool基于分治算法，将大任务不断拆分下去，每个子任�
 
 # Fork/Join框架源码解析
 
+注意：下面所有的代码均来自于JDK11。
+
 ## ForkJoinPool
 
 ### 核心属性
@@ -244,21 +246,6 @@ final ForkJoinWorkerThread owner; // owning thread or null if shared
 ### 构造器
 
 ```java
-/**
-* @param parallelism ForkJoinPool 的并行度
-* @param factory 工作者线程工厂
- * @param handler 每个工作者线程的异常处理器
-     * @param asyncMode 工作队列的任务处理模式，默认是 false【FILO】，
-     *  消息模式下可以指定为 FIFO
-     * @param corePoolSize 核心工作者线程数，默认等于 parallelism
-     * @param maximumPoolSize 最大工作者线程数
-     * @param minimumRunnable 最小可用工作者线程数
-     * @param saturate 当线程池尝试创建 > maximumPoolSize 的工作者线程时，目标任务将被拒绝，
-     *  如果饱和断言返回 true，则该任务将继续执行
-     * @param keepAliveTime 工作线程的空闲超时时间
-     * @param unit keepAliveTime 的时间单位
-     * @since 9
-     */
 public ForkJoinPool(int parallelism,
                     ForkJoinWorkerThreadFactory factory,
                     UncaughtExceptionHandler handler,
@@ -288,10 +275,13 @@ public ForkJoinPool(int parallelism,
     // 最小可用工作者线程数
     int minAvail = Math.min(Math.max(minimumRunnable, 0), MAX_CAP);
     int b = ((minAvail - parallelism) & SMASK) | (maxSpares << SWIDTH);
+  
+  	// 初始工作队列的数量
     int n = (parallelism > 1) ? parallelism - 1 : 1; // at least 2 slots
     n |= n >>> 1; n |= n >>> 2; n |= n >>> 4; n |= n >>> 8; n |= n >>> 16;
     n = (n + 1) << 1; // power of two, including space for submission queues
 
+    // 线程池前缀
     this.workerNamePrefix = "ForkJoinPool-" + nextPoolId() + "-worker-";
     this.workQueues = new WorkQueue[n];
     this.factory = factory;
@@ -324,23 +314,24 @@ public ForkJoinPool(int parallelism,
 `ForkJoinPool`提交任务的核心代码如下：
 
 ```java
-// java.util.concurrent.ForkJoinPool#externalSubmit
 private <T> ForkJoinTask<T> externalSubmit(ForkJoinTask<T> task) {
         Thread t; ForkJoinWorkerThread w; WorkQueue q;
   if (task == null)
     throw new NullPointerException();
+  // 当前线程就是一个ForkJoin类型的线程，直接调用该线程的队列进行push, 说明是内部分裂开的任务,直接入队当前线程的队列
   if (((t = Thread.currentThread()) instanceof ForkJoinWorkerThread) &&
       (w = (ForkJoinWorkerThread)t).pool == this &&
       (q = w.workQueue) != null)
     q.push(task);
   else
+    // 提交任务
     externalPush(task);
   return task;
 }
 
 final void externalPush(ForkJoinTask<?> task) {
   int r;                                // initialize caller's probe
-  // 初始化调用线程的探针值，用于计算WorkQueue索引
+  // 随机初始化调用线程的探针值，用于计算WorkQueue索引
   if ((r = ThreadLocalRandom.getProbe()) == 0) {
     ThreadLocalRandom.localInit();
     r = ThreadLocalRandom.getProbe();
@@ -352,9 +343,11 @@ final void externalPush(ForkJoinTask<?> task) {
     // 线程池关闭或者任务队列为空 则直接拒绝
     if ((md & SHUTDOWN) != 0 || ws == null || (n = ws.length) <= 0)
       throw new RejectedExecutionException();
+    // 该位置为空. 新建一个工作队列，加锁入队.
     else if ((q = ws[(n - 1) & r & SQMASK]) == null) { // add queue
       int qid = (r | QUIET) & ~(FIFO | OWNED);
       Object lock = workerNamePrefix;
+      // 新建一个工作队列
       ForkJoinTask<?>[] qa =
         new ForkJoinTask<?>[INITIAL_QUEUE_CAPACITY];
       q = new WorkQueue(this, null);
@@ -370,20 +363,238 @@ final void externalPush(ForkJoinTask<?> task) {
         }
       }
     }
+    // 如果工作队列的当前位置在忙，重新随机一个位置.
     else if (!q.tryLockPhase()) // move if busy
       r = ThreadLocalRandom.advanceProbe(r);
     else {
+      // 该位置不为空,且不忙,就唤醒工作线程了.
       if (q.lockedPush(task))
         signalWork();
       return;
     }
   }
 }
+
+final void signalWork() {
+  for (;;) {
+    long c; int sp; WorkQueue[] ws; int i; WorkQueue v;
+    if ((c = ctl) >= 0L)                      // enough workers
+      break;
+    else if ((sp = (int)c) == 0) {            // no idle workers
+      if ((c & ADD_WORKER) != 0L)           // too few workers
+        // 工作线程太少，尝试创建新的工作线程
+        tryAddWorker(c);
+      break;
+    }
+    else if ((ws = workQueues) == null)
+      break;                                // unstarted/terminated
+    else if (ws.length <= (i = sp & SMASK))
+      break;                                // terminated
+    else if ((v = ws[i]) == null)
+      break;                                // terminating
+    else {
+      int np = sp & ~UNSIGNALLED;
+      int vp = v.phase;
+      long nc = (v.stackPred & SP_MASK) | (UC_MASK & (c + RC_UNIT));
+      Thread vt = v.owner;
+      if (sp == vp && CTL.compareAndSet(this, c, nc)) {
+        v.phase = np;
+        if (vt != null && v.source < 0)
+          LockSupport.unpark(vt);
+        break;
+      }
+    }
+  }
+}
+
+private void tryAddWorker(long c) {
+  do {
+    long nc = ((RC_MASK & (c + RC_UNIT)) |
+               (TC_MASK & (c + TC_UNIT)));
+    if (ctl == c && CTL.compareAndSet(this, c, nc)) {
+      createWorker();
+      break;
+    }
+  } while (((c = ctl) & ADD_WORKER) != 0L && (int)c == 0);
+}
+
+private boolean createWorker() {
+  ForkJoinWorkerThreadFactory fac = factory;
+  Throwable ex = null;
+  ForkJoinWorkerThread wt = null;
+  try {
+    if (fac != null && (wt = fac.newThread(this)) != null) {
+      wt.start();
+      return true;
+    }
+  } catch (Throwable rex) {
+    ex = rex;
+  }
+  // 线程创建失败处理
+  deregisterWorker(wt, ex);
+  return false;
+}
 ```
 
-
-
 ## ForkJoinTask
+
+### fork()
+
+```java
+public final ForkJoinTask<V> fork() {
+    Thread t;
+    // 当前线程是ForkJoinWorkerThread，直接调用该线程的队列进行push, 说明是内部拆分的子任务,直接入队当前线程的队列
+    if ((t = Thread.currentThread()) instanceof ForkJoinWorkerThread)
+        ((ForkJoinWorkerThread)t).workQueue.push(this);
+    else
+        // 提交到一个随机的等待队列中(外部任务)
+        ForkJoinPool.common.externalPush(this);
+    return this;
+}
+```
+
+### join()
+
+![ForkJoin框架-join流程.svg](./image/ForkJoin框架-join流程.svg)
+
+```java
+public final V join() {
+    int s;
+    // 阻塞等待任务执行结束，如果发生异常，则将抛出 RuntimeException。
+    if (((s = doJoin()) & ABNORMAL) != 0)
+        reportException(s);
+    // 执行成功，返回结果
+    return getRawResult();
+}
+```
+
+任务状态有四种：
+
+* DONE：任务执行结束
+* ABNORMAL：任务异常结束，或者取消
+* THROWN：异常被存储
+* SIGNAL：信号
+
+**doJoin()**
+
+```java
+private int doJoin() {
+  int s; Thread t; ForkJoinWorkerThread wt; ForkJoinPool.WorkQueue w;
+  return (s = status) < 0 ? s :
+  ((t = Thread.currentThread()) instanceof ForkJoinWorkerThread) ?
+    (w = (wt = (ForkJoinWorkerThread)t).workQueue).
+    tryUnpush(this) && (s = doExec()) < 0 ? s :
+  wt.pool.awaitJoin(w, this, 0L) :
+  externalAwaitDone();
+}
+```
+
+* `(s = status) < 0`，如果任务已经完成，则直接返回其状态
+* 如果当前线程是`ForkJoinWorkerThread`，则尝试从工作队列顶部拉取此任务，并在当前线程中执行此任务，调用`doExec()`方法。
+  * 如果执行成功则返回任务状态
+  * 拉取任务失败或者执行任务失败，则表示目标任务不在顶部、或其他的工作者线程窃取了此任务在执行，则等待任务完成，调用` wt.pool.awaitJoin(w, this, 0L)`。
+* 如果当前线程不是`ForkJoinWorkerThread`，则阻塞等待任务完成。
+
+**doExec()**
+
+```java
+final int doExec() {
+    int s; boolean completed;
+    // 任务未完成
+    if ((s = status) >= 0) {
+        try {
+            // 执行任务
+            completed = exec();
+        } catch (Throwable rex) {
+            completed = false;
+            // 设置异常状态
+            s = setExceptionalCompletion(rex);
+        }
+        if (completed)
+            // 如果任务正常结束，则标记已完成
+            s = setDone();
+    }
+    return s;
+}
+```
+
+**externalAwaitDone()**
+
+```java
+// 阻塞一个非工作者线程，直到任务完成
+private int externalAwaitDone() {
+    int s = tryExternalHelp();
+    // 任务未完成 && 写入唤醒标记
+    if (s >= 0 && (s = (int)STATUS.getAndBitwiseOr(this, SIGNAL)) >= 0) {
+        boolean interrupted = false;
+        synchronized (this) {
+            for (;;) {
+                // 任务未完成
+                if ((s = status) >= 0) {
+                    try {
+                        // 阻塞等待任务执行结束
+                        wait(0L);
+                    } catch (InterruptedException ie) {
+                        interrupted = true;
+                    }
+                }
+                else {
+                    // 任务执行结束，唤醒其他线程继续执行
+                    notifyAll();
+                    break;
+                }
+            }
+        }
+        if (interrupted)
+            Thread.currentThread().interrupt();
+    }
+    return s;
+}
+```
+
+## ForkJoinWorkerThread
+
+### 构造器
+
+```java
+protected ForkJoinWorkerThread(ForkJoinPool pool) {
+    // Use a placeholder until a useful name can be set in registerWorker
+    super("aForkJoinWorkerThread");
+    this.pool = pool;
+    this.workQueue = pool.registerWorker(this);
+}
+```
+
+可以看到 ForkJoinWorkerThread 在构造时首先调用父类 Thread 的方法，然后为工作线程注册pool和workQueue，而workQueue的注册任务由ForkJoinPool.registerWorker来完成。
+
+### run()
+
+```java
+public void run() {
+  if (workQueue.array == null) { // only run once
+    Throwable exception = null;
+    try {
+      // 前置钩子
+      onStart();
+      // 运行工作队列
+      pool.runWorker(workQueue);
+    } catch (Throwable ex) {
+      exception = ex;
+    } finally {
+      try {
+        // 后置钩子
+        onTermination(exception);
+      } catch (Throwable ex) {
+        if (exception == null)
+          exception = ex;
+      } finally {
+        // 注销工作者
+        pool.deregisterWorker(this, exception);
+      }
+    }
+  }
+}
+```
 
 # 经典案例
 
