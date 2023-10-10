@@ -348,7 +348,7 @@ NameNode 保存了整个 HDFS 的元数据信息，一旦 NameNode 挂掉，整�
 
 从上图中，我们可以看出 NameNode 的高可用架构主要分为下面几个部分：
 
-Active NameNode 和 Standby NameNode：两台 NameNode 形成互备，一台处于 Active 状态，为主 NameNode，另外一台处于 Standby 状态，为备 NameNode，只有主 NameNode 才能对外提供读写服务。
+Active NameNode 和 Standby NameNode：两台 NameNode 形成互备，一台处于 Active 状态，为主 NameNode，另外一台处于 Standby 状态，为备 NameNode，只有主NameNode才能对外提供读写服务。
 
 主备切换控制器 ZKFailoverController，简称ZKFC：ZKFailoverController 作为独立的进程运行，对 NameNode 的主备切换进行总体控制。ZKFC主要负责：
 

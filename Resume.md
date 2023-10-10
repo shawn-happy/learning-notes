@@ -43,9 +43,10 @@
   * 负责开发Argo workflow SDK。
   * 负责引入Doris，数据源管理模块支持多种数据源。
   * 负责引入Seatunnel，完善数据中台数据集成，数据开发，数据质量等任务的算子开发。
+  * 负责对seatunnel进行二次开发，使其支持多source，多sink，多transform。
   * 负责自动化元数据采集模块。
 
-### 慧博云通 |  2020.6 - 至今
+### 慧博云通 |  2020.6-2023.4
 #### AI平台 2020.06-至今
 
 * **技术栈：**SpringBoot、Kafka、Zookeeper、Hadoop、Spark、Flink、Kubernetes、ArgoWorkflow、OpenMLDB、Filebeat
@@ -55,7 +56,7 @@
   * 负责基于Ray(开源的分布式计算框架)实现强化学习算法的调度框架。
   * 负责基础中间件服务开发：比如OpenMLDB SDK，Mixer(流式数据收集器)，Stateful-Coordination(选主框架)，Kafka-Connector，HDFS-Scanner，Loofah(基于Argo Workflow实现算子的管理和调度)，Magneto(利用K8s Informer机制实现对K8s Resources的监听)等。
 
-#### 智能决策平台 2022.05-至今
+#### 智能决策平台 2022.05-2023.4
 
 * **技术栈：**SpringBoot、Kafka、Zookeeper、Hadoop、Spark、Kubernetes、ArgoWorkflow、OpenMLDB、Clickhouse
 * **项目描述**：智能决策平台是一个聚焦解决金融领域高频，复杂，多变业务场景下决策问题的综合性策略中台。平台致力于将精简规则和领先AI技术相结合，构建业务人员易上手的闭环策略管理体系，帮助企业实现业务流程中的智能决策，助力提升决策水平，有序的帮助企业进行智能升级。

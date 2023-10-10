@@ -588,4 +588,329 @@ public class CopyOnWriteMap<K, V> implements ConcurrentMap<K, V> {
 
 ## 分段加锁
 
+`HashMap`是线程不安全的，java提供`Hashtable,SynchronziedMap`是线程安全的，但其实现过于简单粗暴，所有操作都加上锁，锁粒度粗，导致并发性不好，所以JUC框架提供了基于分段加锁实现的`ConcurrentHashMap`，来提高并发度。
+
+### put()
+
+`ConcurrentHashMap#put()`函数跟`HashMap#put()`的逻辑大概都分为写操作，树化，扩容三个阶段。源代码如下：
+
+```java
+final V putVal(K key, V value, boolean onlyIfAbsent) {
+    // key和value都不能为null
+    if (key == null || value == null) throw new NullPointerException();
+    int hash = spread(key.hashCode());
+    int binCount = 0;
+    for (Node<K,V>[] tab = table;;) {
+        Node<K,V> f; int n, i, fh; K fk; V fv;
+        // 如果tab未被初始化或者没有数据，则初始化Node数组
+        if (tab == null || (n = tab.length) == 0)
+            tab = initTable();
+        // 如果tab[i]上已经有元素，则进入下一次循环，重新操作
+        else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
+            // 如果tab[i]上没有元素，并且使用CAS插入元素成功，则break跳出循环。
+            if (casTabAt(tab, i, null, new Node<K,V>(hash, key, value)))
+                break;                   // no lock when adding to empty bin
+        }
+        else if ((fh = f.hash) == MOVED)
+            // 如果需要数据迁移，则在当前线程做数据迁移
+            tab = helpTransfer(tab, f);
+        else if (onlyIfAbsent // check first node without acquiring lock
+                 && fh == hash
+                 && ((fk = f.key) == key || (fk != null && key.equals(fk)))
+                 && (fv = f.val) != null)
+            // 如果key存在，则不操作，直接返回旧value。
+            return fv;
+        else {
+            V oldVal = null;
+            synchronized (f) { // 锁住当前节点
+                if (tabAt(tab, i) == f) { // 再次检测tab[i]是否有变化，如果有变化则进入下一次循环，从头来过
+                    if (fh >= 0) { // 如果第一个元素的hash值不是MOVED，则使用链表的方式存储
+                        binCount = 1; // tab中元素个数赋值为1
+                        for (Node<K,V> e = f;; ++binCount) { // 遍历整个tab，每次结束binCount加1
+                            K ek;
+                            if (e.hash == hash &&
+                                ((ek = e.key) == key ||
+                                 (ek != null && key.equals(ek)))) {
+                                oldVal = e.val;
+                                if (!onlyIfAbsent) // 如果找到了这个元素并且onlyIfAbsent=false，则赋值了新值
+                                    e.val = value;
+                                break;
+                            }
+                            Node<K,V> pred = e;
+                            if ((e = e.next) == null) { // 如果到链表尾部还没有找到这个元素，则插入到链表尾部。
+                                pred.next = new Node<K,V>(hash, key, value);
+                                break;
+                            }
+                        }
+                    }
+                    else if (f instanceof TreeBin) { // 如果第一个节点是红黑树节点
+                        Node<K,V> p;
+                        binCount = 2; // tab中的元素个数赋值为2
+                        // 插入到红黑树节点
+                        if ((p = ((TreeBin<K,V>)f).putTreeVal(hash, key,
+                                                       value)) != null) {
+                            oldVal = p.val;
+                            if (!onlyIfAbsent)
+                                p.val = value;
+                        }
+                    }
+                    else if (f instanceof ReservationNode)
+                        throw new IllegalStateException("Recursive update");
+                }
+            }
+            // 表示插入成功
+            if (binCount != 0) {
+                // 如果tab中的元素个数大于等于8，则需要树化。
+                if (binCount >= TREEIFY_THRESHOLD)
+                    treeifyBin(tab, i);
+                // 如果要插入的元素已经存在，则返回旧值
+                if (oldVal != null)
+                    return oldVal;
+                break;
+            }
+        }
+    }
+    // 成功插入元素，元素个数加1
+    addCount(1L, binCount);
+    return null;
+}
+```
+
+#### initTable()
+
+```java
+private final Node<K,V>[] initTable() {
+    Node<K,V>[] tab; int sc;
+    while ((tab = table) == null || tab.length == 0) {
+        if ((sc = sizeCtl) < 0) // 正在初始化或者扩容，让出cpu
+            Thread.yield(); // lost initialization race; just spin
+        else if (U.compareAndSetInt(this, SIZECTL, sc, -1)) {
+            try {
+                // 再次检查table是否为空，防止ABA问题
+                if ((tab = table) == null || tab.length == 0) {
+                    int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
+                    @SuppressWarnings("unchecked")
+                    Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n];
+                    table = tab = nt;
+                    // n - (n >>> 2) = n - n/4 = 0.75n
+                    // 可见这里装载因子和扩容门槛都是写死了的
+                    // 这也正是没有threshold和loadFactor属性的原因
+                    sc = n - (n >>> 2);
+                }
+            } finally {
+                sizeCtl = sc;
+            }
+            break;
+        }
+    }
+    return tab;
+}
+```
+
+#### helpTransfer()
+
+```java
+final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
+    Node<K,V>[] nextTab; int sc;
+    // 如果tab数组不为空，f为ForwardingNode类型，并且f.nextTab不为空
+    // 说明当前tab已经迁移完毕了，才去帮忙迁移其它tab的元素
+    if (tab != null && (f instanceof ForwardingNode) &&
+        (nextTab = ((ForwardingNode<K,V>)f).nextTable) != null) {
+        int rs = resizeStamp(tab.length);
+        while (nextTab == nextTable && table == tab &&
+               (sc = sizeCtl) < 0) {
+            if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                sc == rs + MAX_RESIZERS || transferIndex <= 0)
+                break;
+            if (U.compareAndSetInt(this, SIZECTL, sc, sc + 1)) {
+                transfer(tab, nextTab);
+                break;
+            }
+        }
+        return nextTab;
+    }
+    return table;
+}
+```
+
+#### addCount()
+
+```java
+private final void addCount(long x, int check) {
+    CounterCell[] as; long b, s;
+    // 先尝试把数量加到baseCount上，如果失败再加到分段的CounterCell上
+    if ((as = counterCells) != null ||
+            !U.compareAndSwapLong(this, BASECOUNT, b = baseCount, s = b + x)) {
+        CounterCell a; long v; int m;
+        boolean uncontended = true;
+        if (as == null || (m = as.length - 1) < 0 ||
+                (a = as[ThreadLocalRandom.getProbe() & m]) == null ||
+                !(uncontended =
+                        U.compareAndSwapLong(a, CELLVALUE, v = a.value, v + x))) {
+            fullAddCount(x, uncontended);
+            return;
+        }
+        if (check <= 1)
+            return;
+        // 计算元素个数
+        s = sumCount();
+    }
+    //检查是否需要扩容，默认check=1,需要检查
+    if (check >= 0) {
+        Node<K,V>[] tab, nt; int n, sc;
+        // 如果元素个数达到了扩容门槛，则进行扩容
+        // 注意，正常情况下sizeCtl存储的是扩容门槛，即容量的0.75倍
+        while (s >= (long)(sc = sizeCtl) && (tab = table) != null &&
+                (n = tab.length) < MAXIMUM_CAPACITY) {
+            // rs是扩容时的一个标识
+            int rs = resizeStamp(n);
+            if (sc < 0) {
+                // sc<0说明正在扩容中
+                if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
+                        sc == rs + MAX_RESIZERS || (nt = nextTable) == null ||
+                        transferIndex <= 0)
+                    // 扩容已经完成了，退出循环
+                    break;
+                // 扩容未完成，则当前线程加入迁移元素中
+                // 并把扩容线程数加1
+                if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1))
+                    transfer(tab, nt);
+            }
+            else if (U.compareAndSwapInt(this, SIZECTL, sc,
+                    (rs << RESIZE_STAMP_SHIFT) + 2))
+                // 进入迁移元素
+                transfer(tab, null);
+            // 重新计算元素个数
+            s = sumCount();
+        }
+    }
+}
+```
+
+### get()
+
+```java
+public V get(Object key) {
+    Node<K,V>[] tab; Node<K,V> e, p; int n, eh; K ek;
+    int h = spread(key.hashCode());
+    // 判断数组是否为空，通过key定位到数组下标是否为空；
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (e = tabAt(tab, (n - 1) & h)) != null) {
+        // 如果第一个元素就是要找的元素，直接返回
+        if ((eh = e.hash) == h) {
+            if ((ek = e.key) == key || (ek != null && key.equals(ek)))
+                return e.val;
+        }
+        else if (eh < 0) 
+            // eh<0，说明是树或者正在扩容
+            // 使用find寻找元素，find的寻找方式依据Node的不同子类有不同的实现方式
+            return (p = e.find(h, key)) != null ? p.val : null;
+        // 遍历整个链表寻找元素
+        while ((e = e.next) != null) {
+            if (e.hash == h &&
+                ((ek = e.key) == key || (ek != null && key.equals(ek))))
+                return e.val;
+        }
+    }
+    return null;
+}
+```
+
+get()函数对应的就是读操作。在get()函数的代码实现中，我们没有发现任何加锁等线程安全的处理逻辑，因此，get()函数可以跟任何操作（读操作、写操作、树化、扩容）并行执行，并发性能极高。
+
+流程也相对来说比较简单：
+
+1. 判断数组是否为空，通过key定位到数组下标是否为空；
+2. 判断node节点第一个元素是不是要找到，如果是直接返回；
+3. 如果是红黑树结构，就从红黑树里面查询；
+4. 如果是链表结构，循环遍历判断。
+
 ## 阻塞等待
+
+阻塞等待主要应用于阻塞队列。
+
+读阻塞指的是，当从队列中读取数据时，如果队列已空，那么读操作阻塞，直到队列有新数据写入，读操作才成功返回。
+
+写阻塞指的是，当往队列中写入数据时，如果队列已满，那么写操作阻塞，直到队列重新腾出空位置，写入操作才成功返回。
+
+阻塞并发队列一般用于实现生产者-消费者模型。
+
+JUC提供的阻塞并发队列有很多，比如`ArrayBlockingQueue`、`LinkedBlockingQueue`、`LinkedBlockingDeque`、`PriorityBlockingQueue`、`DelayQueue`、`SynchronousQueue`、`LinkedTransferQueue`。
+
+其中`ArrayBlockingQueue`、`LinkedBlockingQueue`、`LinkedBlockingDeque`、`PriorityBlockingQueue`的实现原理类似，它们都是基于`ReentrantLock`锁来实现线程安全，基于`Condition`条件变量来实现阻塞等待。`ArrayBlockingQueue`是基于数组实现的有界阻塞并发队列，队列的大小在创建时指定。`ArrayBlockingQueue`跟普通队列的使用方式基本一样，唯一的区别在于读写可阻塞。
+
+接下来，我们结合源码具体讲解它的实现原理，重点看下它是如何实现线程安全且可阻塞的。`ArrayBlockingQueue`的部分源码如下所示。
+
+```java
+public class ArrayBlockingQueue<E> extends AbstractQueue<E>
+        implements BlockingQueue<E>, java.io.Serializable {
+    final Object[] items; // 内部数组
+    int takeIndex; // 下一次出队时，出队数据的下标位置
+    int putIndex;  // 下一次入队时，数据存储的下标位置
+    int count; // 队列中的元素个数
+    final ReentrantLock lock; // 加锁实现线程安全
+    private final Condition notEmpty; // 用来阻塞读，等待非空条件的发生
+    private final Condition notFull;  // 用来阻塞写，等待非满条件的发生
+  
+    public ArrayBlockingQueue(int capacity) {
+        this(capacity, false);
+    }
+
+    // 公平锁，非公平锁
+    public ArrayBlockingQueue(int capacity, boolean fair) {
+        if (capacity <= 0)
+            throw new IllegalArgumentException();
+        this.items = new Object[capacity];
+        lock = new ReentrantLock(fair);
+        notEmpty = lock.newCondition();
+        notFull =  lock.newCondition();
+    }
+  
+    private void enqueue(E e) {
+        final Object[] items = this.items;
+        items[putIndex] = e;
+        if (++putIndex == items.length) putIndex = 0;
+        count++;
+        notEmpty.signal(); // 唤醒阻塞读，阻塞队列非空的线程
+    }
+    private E dequeue() {
+        final Object[] items = this.items;
+        @SuppressWarnings("unchecked")
+        E e = (E) items[takeIndex];
+        items[takeIndex] = null;
+        if (++takeIndex == items.length) takeIndex = 0;
+        count--;
+        if (itrs != null)
+            itrs.elementDequeued();
+        notFull.signal(); // 唤醒阻塞写，阻塞队列非满的线程
+        return e;
+    }
+
+    // 阻塞写
+    public void put(E e) throws InterruptedException {
+        Objects.requireNonNull(e);
+        final ReentrantLock lock = this.lock;
+        lock.lockInterruptibly();
+        try {
+            while (count == items.length) 
+                notFull.await(); // 阻塞队列非满
+            enqueue(e);
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    // 阻塞读
+    public E take() throws InterruptedException {
+        final ReentrantLock lock = this.lock;
+        lock.lockInterruptibly();
+        try {
+            while (count == 0)
+                notEmpty.await(); // 阻塞队列非空
+            return dequeue();
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+```

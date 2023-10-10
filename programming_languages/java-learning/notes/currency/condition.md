@@ -27,7 +27,7 @@
 
 其中1不常用，2和3都可以称之为条件变量，4为信号量，本篇文章主要讲解条件变量的实现方式。
 
-## Synchronized + Look实现BlockingQueue
+## Synchronized + Loop实现BlockingQueue
 
 ```java
 public class BlockingQueueWithLoop implements Queue {
