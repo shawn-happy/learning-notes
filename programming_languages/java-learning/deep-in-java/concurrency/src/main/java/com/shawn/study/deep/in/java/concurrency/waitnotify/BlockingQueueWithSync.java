@@ -1,6 +1,5 @@
 package com.shawn.study.deep.in.java.concurrency.waitnotify;
 
-
 public class BlockingQueueWithSync implements Queue {
 
   private int[] elements;

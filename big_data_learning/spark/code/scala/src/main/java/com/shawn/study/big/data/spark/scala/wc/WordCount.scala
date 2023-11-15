@@ -28,9 +28,8 @@ object WordCount {
   // flatMap + groupBy + map
   def wc1(rdd: RDD[String]): Unit = {
     rdd.flatMap(_.split(" ")).groupBy(word => word).map({
-      case (word, list) => {
+      case (word, list) =>
         (word, list.size)
-      }
     }).collect().foreach(println)
   }
 
