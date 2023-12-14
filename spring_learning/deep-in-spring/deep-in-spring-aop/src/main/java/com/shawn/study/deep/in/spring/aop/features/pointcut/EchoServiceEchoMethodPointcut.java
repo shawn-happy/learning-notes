@@ -10,7 +10,7 @@ public class EchoServiceEchoMethodPointcut implements Pointcut {
 
   public static final EchoServiceEchoMethodPointcut INSTANCE = new EchoServiceEchoMethodPointcut();
 
-  private EchoServiceEchoMethodPointcut(){}
+  private EchoServiceEchoMethodPointcut() {}
 
   @Override
   public ClassFilter getClassFilter() {
