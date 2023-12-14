@@ -1,4 +1,4 @@
-package com.shawn.study.java.jms;
+package io.github.deep.in.java.jms;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -11,7 +11,6 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class JmsSimpleDemo {
-
   public static void main(String[] args) throws InterruptedException {
     run(new SimpleProducer());
     run(new SimpleProducer());
@@ -52,8 +51,8 @@ public class JmsSimpleDemo {
     @Override
     public void run() {
       try {
-        ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(
-            "vm://localhost");
+        ActiveMQConnectionFactory activeMQConnectionFactory =
+            new ActiveMQConnectionFactory("vm://localhost");
         Connection connection = activeMQConnectionFactory.createConnection();
         connection.start();
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -83,8 +82,8 @@ public class JmsSimpleDemo {
     @Override
     public void run() {
       try {
-        ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(
-            "vm://localhost");
+        ActiveMQConnectionFactory activeMQConnectionFactory =
+            new ActiveMQConnectionFactory("vm://localhost");
         Connection connection = activeMQConnectionFactory.createConnection();
         connection.start();
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

@@ -82,6 +82,7 @@
 
     <jms.version>1.1</jms.version>
     <kafka.client.version>2.8.1</kafka.client.version>
+    <activemq.version>5.9.1</activemq.version>
   </properties>
 
   <dependencies>
@@ -291,6 +292,12 @@
         <groupId>org.eclipse.microprofile.config</groupId>
         <artifactId>microprofile-config-api</artifactId>
         <version>${microprofile.config.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-all</artifactId>
+        <version>${activemq.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
