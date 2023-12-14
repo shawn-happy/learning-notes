@@ -1,11 +1,5 @@
 package com.shawn.study.deep.in.java.rest.jax.rs.client;
 
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.InvocationCallback;
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -14,6 +8,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 /**
  * HTTP GET Method {@link Invocation}

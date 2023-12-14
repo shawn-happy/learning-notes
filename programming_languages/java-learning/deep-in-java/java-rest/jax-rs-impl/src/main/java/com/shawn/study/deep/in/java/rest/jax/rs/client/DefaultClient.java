@@ -1,15 +1,15 @@
 package com.shawn.study.deep.in.java.rest.jax.rs.client;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Invocation.Builder;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Configuration;
-import jakarta.ws.rs.core.Link;
-import jakarta.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
 
 public class DefaultClient implements Client {
 

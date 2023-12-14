@@ -1,9 +1,5 @@
 package com.shawn.study.deep.in.java.rest.jax.rs.client;
 
-import jakarta.ws.rs.RuntimeType;
-import jakarta.ws.rs.core.Configurable;
-import jakarta.ws.rs.core.Configuration;
-import jakarta.ws.rs.core.Feature;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +8,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.RuntimeType;
+import javax.ws.rs.core.Configurable;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Feature;
 
 public class ClientConfig implements Configuration, Configurable<ClientConfig> {
 

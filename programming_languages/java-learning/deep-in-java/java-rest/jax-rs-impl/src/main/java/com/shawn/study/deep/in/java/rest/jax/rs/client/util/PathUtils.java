@@ -1,10 +1,10 @@
 package com.shawn.study.deep.in.java.rest.jax.rs.client.util;
 
-import jakarta.ws.rs.Path;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.stream.Stream;
+import javax.ws.rs.Path;
 
 public interface PathUtils {
 

@@ -20,54 +20,45 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-http</artifactId>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-json-jackson</artifactId>
-    </dependency>
-    <!-- Jersey related and HK2 dependency injection -->
-    <dependency>
-      <groupId>org.glassfish.jersey.inject</groupId>
-      <artifactId>jersey-hk2</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-servlet</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.tomcat.maven</groupId>
-        <artifactId>tomcat7-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>tomcat-run</id>
-            <goals>
-              <!-- 最终打包成可执行的jar包 -->
-              <goal>exec-war-only</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <!-- ServletContext 路径 -->
-              <path>/</path>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+  <!--  <build>-->
+  <!--    <plugins>-->
+  <!--      <plugin>-->
+  <!--        <groupId>org.apache.tomcat.maven</groupId>-->
+  <!--        <artifactId>tomcat7-maven-plugin</artifactId>-->
+  <!--        <executions>-->
+  <!--          <execution>-->
+  <!--            <id>tomcat-run</id>-->
+  <!--            <goals>-->
+  <!--              &lt;!&ndash; 最终打包成可执行的jar包 &ndash;&gt;-->
+  <!--              <goal>exec-war-only</goal>-->
+  <!--            </goals>-->
+  <!--            <phase>package</phase>-->
+  <!--            <configuration>-->
+  <!--              &lt;!&ndash; ServletContext 路径 &ndash;&gt;-->
+  <!--              <path>/</path>-->
+  <!--            </configuration>-->
+  <!--          </execution>-->
+  <!--        </executions>-->
+  <!--      </plugin>-->
 
-    </plugins>
-  </build>
+  <!--    </plugins>-->
+  <!--  </build>-->
 
 </project>

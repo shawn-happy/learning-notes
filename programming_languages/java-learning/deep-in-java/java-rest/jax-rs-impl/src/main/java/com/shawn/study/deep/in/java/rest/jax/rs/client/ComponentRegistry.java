@@ -1,9 +1,8 @@
 package com.shawn.study.deep.in.java.rest.jax.rs.client;
 
-import jakarta.annotation.Priority;
-import jakarta.ws.rs.ConstrainedTo;
-import jakarta.ws.rs.Priorities;
-import jakarta.ws.rs.RuntimeType;
+import javax.ws.rs.ConstrainedTo;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.RuntimeType;
 
 class ComponentRegistry {
 
@@ -32,12 +31,7 @@ class ComponentRegistry {
     if (priority != -1) {
       return priority;
     }
-    final Priority priorityAnnotation = componentClass.getAnnotation(Priority.class);
-    if (priorityAnnotation != null) {
-      return priorityAnnotation.value();
-    } else {
-      return Priorities.USER;
-    }
+    return Priorities.USER;
   }
 
   Class<?> getFeatureClass() {

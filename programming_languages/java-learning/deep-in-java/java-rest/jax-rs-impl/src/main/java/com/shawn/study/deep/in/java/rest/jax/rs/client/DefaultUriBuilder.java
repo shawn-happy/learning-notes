@@ -10,10 +10,6 @@ import static com.shawn.study.deep.in.java.rest.jax.rs.client.util.URLUtils.toQu
 import static com.shawn.study.deep.in.java.rest.jax.rs.client.util.URLUtils.toTemplateVariables;
 import static java.util.Collections.singletonMap;
 
-import jakarta.ws.rs.core.MultivaluedHashMap;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.UriBuilder;
-import jakarta.ws.rs.core.UriBuilderException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,6 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriBuilderException;
 
 public class DefaultUriBuilder extends UriBuilder {
 
