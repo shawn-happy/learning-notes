@@ -1,4 +1,4 @@
-package com.shawn.jvm;
+package com.shawn.study.deep.in.java.jvm;
 
 import java.util.ArrayList;
 import java.util.List;

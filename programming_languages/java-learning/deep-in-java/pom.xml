@@ -83,6 +83,11 @@
     <jms.version>1.1</jms.version>
     <kafka.client.version>2.8.1</kafka.client.version>
     <activemq.version>5.9.1</activemq.version>
+
+    <!-- java cache -->
+    <javax.cache-api.version>1.1.1</javax.cache-api.version>
+    <lettuce.version>6.1.0.RELEASE</lettuce.version>
+    <jedis.version>3.5.2</jedis.version>
   </properties>
 
   <dependencies>
@@ -298,6 +303,24 @@
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-all</artifactId>
         <version>${activemq.version}</version>
+      </dependency>
+
+      <!-- Java Cache API -->
+      <dependency>
+        <groupId>javax.cache</groupId>
+        <artifactId>cache-api</artifactId>
+        <version>${javax.cache-api.version}</version>
+      </dependency>
+      <!-- Redis Java Client - Lettuce -->
+      <dependency>
+        <groupId>io.lettuce</groupId>
+        <artifactId>lettuce-core</artifactId>
+        <version>${lettuce.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>redis.clients</groupId>
+        <artifactId>jedis</artifactId>
+        <version>${jedis.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

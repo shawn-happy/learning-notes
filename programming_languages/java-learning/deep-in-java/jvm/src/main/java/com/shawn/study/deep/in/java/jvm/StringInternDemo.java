@@ -1,4 +1,4 @@
-package com.shawn.jvm;
+package com.shawn.study.deep.in.java.jvm;
 
 public class StringInternDemo {
 
@@ -10,5 +10,4 @@ public class StringInternDemo {
     String str2 = new StringBuilder("虚拟").append("机").toString();
     System.out.println("java.intern() == str2: " + (java.intern() == str2));
   }
-
 }

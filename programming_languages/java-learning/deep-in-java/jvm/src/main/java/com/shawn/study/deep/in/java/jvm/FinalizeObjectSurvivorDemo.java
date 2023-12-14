@@ -1,10 +1,8 @@
-package com.shawn.jvm;
+package com.shawn.study.deep.in.java.jvm;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * 复活即将被回收的对象DEMO
- */
+/** 复活即将被回收的对象DEMO */
 public class FinalizeObjectSurvivorDemo {
 
   private static FinalizeObjectSurvivorDemo HOOK = null;
@@ -44,5 +42,4 @@ public class FinalizeObjectSurvivorDemo {
       System.out.println("no, i'm dead...");
     }
   }
-
 }
