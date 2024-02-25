@@ -12,14 +12,15 @@
     <module>deep-in-spring-core</module>
     <module>deep-in-spring-aop</module>
     <module>deep-in-spring-boot</module>
+    <module>cloud</module>
   </modules>
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <spring.version>5.2.2.RELEASE</spring.version>
-    <spring.boot.version>2.2.2.RELEASE</spring.boot.version>
+    <spring.version>5.3.22</spring.version>
+    <spring.boot.version>2.7.3</spring.boot.version>
     <yaml.version>1.26</yaml.version>
     <commons.io.version>2.7</commons.io.version>
     <junit.version>4.13.1</junit.version>

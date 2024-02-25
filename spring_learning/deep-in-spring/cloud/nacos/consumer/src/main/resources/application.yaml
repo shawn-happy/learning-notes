@@ -1,0 +1,8 @@
+spring.application.name: nacos-consumer
+server.port: 8081
+spring.cloud.nacos.discovery.server-addr: http://localhost:8848
+spring.cloud.nacos.discovery.username: nacos
+spring.cloud.nacos.discovery.password: nacos
+spring.cloud.nacos.discovery.namespace: ed6c5c60-5686-43f5-aef3-68282b43e85b
+spring.cloud.nacos.discovery.service: ${spring.application.name}
+spring.main.web-application-type: servlet
