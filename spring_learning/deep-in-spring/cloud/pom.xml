@@ -10,6 +10,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>nacos</module>
+    <module>loadbalancer</module>
   </modules>
 
   <properties>

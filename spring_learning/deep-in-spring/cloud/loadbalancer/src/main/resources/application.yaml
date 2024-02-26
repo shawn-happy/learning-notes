@@ -1,0 +1,19 @@
+spring.application.name: loadbalancer
+spring.config.import:
+  - optional:nacos:${spring.application.name}.yaml
+
+spring.cloud.nacos.discovery.server-addr: http://localhost:8848
+spring.cloud.nacos.discovery.username: nacos
+spring.cloud.nacos.discovery.password: nacos
+spring.cloud.nacos.discovery.namespace: ed6c5c60-5686-43f5-aef3-68282b43e85b
+spring.cloud.nacos.discovery.service: ${spring.application.name}
+
+spring.cloud.nacos.config.server-addr: http://localhost:8848
+spring.cloud.nacos.config.username: nacos
+spring.cloud.nacos.config.password: nacos
+spring.cloud.nacos.config.namespace: ed6c5c60-5686-43f5-aef3-68282b43e85b
+spring.cloud.nacos.config.file-extension: yaml
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
