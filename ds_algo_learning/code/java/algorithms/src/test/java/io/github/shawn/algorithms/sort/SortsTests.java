@@ -47,4 +47,24 @@ public class SortsTests {
     Sorts.shellSort(array2);
     Assert.assertArrayEquals(expected2, array2);
   }
+
+  @Test
+  public void testMergeSort() {
+    final int[] array1 = {3, 5, 4, 1, 2, 6};
+    Sorts.mergeSort(array1);
+    Assert.assertArrayEquals(expected1, array1);
+    final int[] array2 = {4, 23, -6, 78, 1, 54, 23, -6, -231, 9, 12};
+    Sorts.mergeSort(array2);
+    Assert.assertArrayEquals(expected2, array2);
+  }
+
+  @Test
+  public void testQuickSort() {
+    final int[] array1 = {3, 5, 4, 1, 2, 6};
+    Sorts.quickSort(array1);
+    Assert.assertArrayEquals(expected1, array1);
+    final int[] array2 = {4, 23, -6, 78, 1, 54, 23, -6, -231, 9, 12};
+    Sorts.quickSort(array2);
+    Assert.assertArrayEquals(expected2, array2);
+  }
 }
