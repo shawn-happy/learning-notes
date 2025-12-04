@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.resttemplate;
+package .deep.in.sc.loadbalancer.resttemplate;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;

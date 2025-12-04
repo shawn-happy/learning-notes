@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.spring.bean;
+package .deep.in.spring.bean;
 
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;

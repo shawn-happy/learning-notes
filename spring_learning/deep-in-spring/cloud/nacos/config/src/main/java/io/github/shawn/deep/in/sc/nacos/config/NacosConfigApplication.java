@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.nacos.config;
+package .deep.in.sc.nacos.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;

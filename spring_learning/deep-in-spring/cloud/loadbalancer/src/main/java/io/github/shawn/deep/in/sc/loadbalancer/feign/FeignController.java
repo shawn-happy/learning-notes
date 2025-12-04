@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.feign;
+package .deep.in.sc.loadbalancer.feign;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

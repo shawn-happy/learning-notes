@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.webClient;
+package .deep.in.sc.loadbalancer.webClient;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

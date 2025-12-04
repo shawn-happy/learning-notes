@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.resttemplate;
+package .deep.in.sc.loadbalancer.resttemplate;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

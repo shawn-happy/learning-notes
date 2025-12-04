@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.config;
+package .deep.in.sc.loadbalancer.config;
 
 import java.util.List;
 import java.util.Map;

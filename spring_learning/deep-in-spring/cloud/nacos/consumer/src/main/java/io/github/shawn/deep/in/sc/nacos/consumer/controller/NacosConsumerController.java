@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.nacos.consumer.controller;
+package .deep.in.sc.nacos.consumer.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

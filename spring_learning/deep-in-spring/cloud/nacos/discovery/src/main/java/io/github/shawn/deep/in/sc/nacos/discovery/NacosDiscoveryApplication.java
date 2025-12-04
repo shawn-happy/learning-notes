@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.nacos.discovery;
+package .deep.in.sc.nacos.discovery;
 
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.cloud.nacos.NacosServiceManager;

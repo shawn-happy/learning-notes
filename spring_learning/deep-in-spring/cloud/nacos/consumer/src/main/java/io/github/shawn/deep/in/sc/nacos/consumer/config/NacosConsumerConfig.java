@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.nacos.consumer.config;
+package .deep.in.sc.nacos.consumer.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

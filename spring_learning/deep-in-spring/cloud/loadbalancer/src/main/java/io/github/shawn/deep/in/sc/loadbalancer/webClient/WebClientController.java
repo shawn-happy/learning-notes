@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.webClient;
+package .deep.in.sc.loadbalancer.webClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalancerExchangeFilterFunction;

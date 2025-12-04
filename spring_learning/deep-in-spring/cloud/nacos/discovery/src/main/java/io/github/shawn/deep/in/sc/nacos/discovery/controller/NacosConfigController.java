@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.nacos.discovery.controller;
+package .deep.in.sc.nacos.discovery.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;

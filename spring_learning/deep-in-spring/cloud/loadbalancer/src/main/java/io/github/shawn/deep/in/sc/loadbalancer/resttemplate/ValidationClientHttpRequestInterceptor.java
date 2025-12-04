@@ -1,4 +1,4 @@
-package io.github.shawn.deep.in.sc.loadbalancer.resttemplate;
+package .deep.in.sc.loadbalancer.resttemplate;
 
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpRequest;
