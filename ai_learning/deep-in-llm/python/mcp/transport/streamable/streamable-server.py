@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # 创建MCP实例
-mcp = FastMCP(name="demo-mcp")
+mcp = FastMCP(name="streamable-demo", port=8081, stateless_http=False)
 
 
 # 添加一个简单的资源
@@ -91,4 +91,4 @@ def debug_error(error: str) -> list[base.Message]:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    mcp.run(transport="streamable-http")

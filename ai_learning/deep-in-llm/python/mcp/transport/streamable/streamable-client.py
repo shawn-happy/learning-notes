@@ -1,44 +1,52 @@
-# client.py
+# client.py - Streamable HTTP Protocol MCP Client
 import sys
-import urllib
+import urllib.parse
+from mcp.client.streamable_http import streamablehttp_client
 
-from mcp.client.sse import sse_client
 from mcp.client.session import ClientSession
 
 import asyncio
-
 import logging
-
 import json
 
 from mcp.types import TextContent, TextResourceContents
+from mcp.server.fastmcp.prompts import base
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 async def main():
-    """Main client function that demonstrates MCP client features"""
-    logger.info("Starting clean MCP client")
+    """Main client function that demonstrates MCP client features with streamable protocol"""
+    logger.info("Starting Streamable MCP Client")
 
     try:
-        logger.info("Connecting to server...")
-        async with sse_client(url="http://localhost:8000/sse") as (reader, writer):
+        # Connect to streamable HTTP server
+        logger.info("Connecting to streamable server at http://localhost:8081/mcp...")
+        async with streamablehttp_client("http://localhost:8081/mcp") as (reader, writer, callback):
             async with ClientSession(reader, writer) as session:
                 logger.info("Initializing session")
                 await session.initialize()
 
-                # 1. Call the add tool
+                # 1. Call the greeting tool
+                logger.info("Testing greeting tool")
+                greeting_result = await session.call_tool("greeting", arguments={"name": "World"})
+                if greeting_result and greeting_result.content:
+                    text_content = next((content for content in greeting_result.content
+                                         if isinstance(content, TextContent)), None)
+                    if text_content:
+                        print(f"\n1. Greeting: {text_content.text}")
+
+                # 2. Call the add tool
                 logger.info("Testing calculator tool")
                 add_result = await session.call_tool("add", arguments={"a": 5, "b": 7})
                 if add_result and add_result.content:
                     text_content = next((content for content in add_result.content
                                          if isinstance(content, TextContent)), None)
                     if text_content:
-                        print(f"\n1. Calculator result (5 + 7) = {text_content.text}")
+                        print(f"\n2. Calculator result (5 + 7) = {text_content.text}")
 
-
-                # 2. Get models resource
+                # 3. Get models resource
                 logger.info("Testing models resource")
                 models_response = await session.read_resource("models://")
                 if models_response and models_response.contents:
@@ -60,7 +68,6 @@ async def main():
                                           if isinstance(content, TextResourceContents)), None)
                     if text_resource:
                         print(f"\n4. Greeting: {text_resource.text}")
-
 
                 # 5. Get document resource
                 logger.info("Testing document resource")
@@ -84,6 +91,18 @@ async def main():
                         if text_content:
                             print("\n6. Code review prompt:")
                             print(f"   {text_content.text}")
+
+                # 7. Use debug error prompt (multi-message format)
+                logger.info("Testing debug assistant prompt")
+                error_message = "AttributeError: 'NoneType' object has no attribute 'method'"
+                debug_response = await session.get_prompt("debug_error", {"error": error_message})
+                if debug_response and debug_response.messages:
+                    print("\n7. Debug assistant prompt (multi-message):")
+                    for idx, msg in enumerate(debug_response.messages):
+                        if isinstance(msg, base.UserMessage):
+                            print(f"   [User Message {idx + 1}]: {msg.content.text if hasattr(msg.content, 'text') else msg.content}")
+                        elif isinstance(msg, base.AssistantMessage):
+                            print(f"   [Assistant Message {idx + 1}]: {msg.content.text if hasattr(msg.content, 'text') else msg.content}")
 
     except Exception:
         logger.exception("An error occurred")
