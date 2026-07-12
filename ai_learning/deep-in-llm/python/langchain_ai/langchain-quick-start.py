@@ -117,7 +117,7 @@ def demo_chat_model_with_batch():
     messages = [
         {"topic": "人工智能", "style": "科普"},
         {"topic": "大模型", "style": "科普"},
-        {"topic": "langchain", "style": "科普"}
+        {"topic": "langchain_ai", "style": "科普"}
     ]
     responses = chain.batch(messages)
     for response in responses:

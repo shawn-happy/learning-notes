@@ -1,0 +1,14 @@
+[project]
+name = "langchain-ai"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp~=1.16.0",
+    "langchain==1.3.11",
+    "langgraph==1.2.8",
+    "deepagents==0.6.12",
+    "langchain-openai==1.3.3",
+    "cryptography==45.0.7",
+]

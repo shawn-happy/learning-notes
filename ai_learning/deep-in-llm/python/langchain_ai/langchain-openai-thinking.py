@@ -14,7 +14,7 @@ reasoning = {
 reasoning_model = ChatOpenAI(
     model="gpt-5.2",
     temperature=0.7,
-    reasoning=reasoning
+    reasoning=reasoning,
 )
 
 for chunk in reasoning_model.stream("大模型的原理"):

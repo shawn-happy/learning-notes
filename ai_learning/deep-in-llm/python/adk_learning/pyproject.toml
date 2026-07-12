@@ -1,0 +1,13 @@
+[project]
+name = "adk-learning"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp~=1.16.0",
+    "requests==2.32.5",
+    "google-adk==2.3.0",
+    "litellm==1.91.0",
+    "cryptography==45.0.7",
+]
